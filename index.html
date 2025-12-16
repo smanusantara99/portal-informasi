@@ -1,0 +1,2117 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Berita Sekolahku - Portal Informasi SMA Nusantara</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    
+    <!-- Internal CSS -->
+    <style>
+        /* --- VARIABEL WARNA & GLOBAL --- */
+        :root {
+            --primary-color: #0f3056;      /* Biru Tua */
+            --secondary-color: #0d402d;    /* Hijau Tua */
+            --accent-color: #c19f55;       /* Emas */
+            --light-color: #fefefe;        /* Putih */
+            --background-color: #f4f4f4;   /* Abu-abu Sangat Muda untuk kontras */
+            --text-color: #333;
+            --dark-text-color: #ddd;
+            --shadow: 0 4px 15px rgba(0,0,0,0.1);
+            --font-family: 'Poppins', sans-serif;
+            --font-family-heading: 'Playfair Display', serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-family);
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--background-color);
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* --- ANIMASI --- */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .stagger-animation .news-card {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        .stagger-animation .news-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .hero-content {
+            opacity: 0;
+            transform: translateX(-50px);
+            transition: opacity 1s ease, transform 1s ease;
+        }
+
+        .hero-content.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .hero-image {
+            opacity: 0;
+            transform: translateX(50px);
+            transition: opacity 1s ease 0.3s, transform 1s ease 0.3s;
+        }
+
+        .hero-image.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .page-loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--primary-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+        }
+
+        .page-loader.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .loader {
+            width: 60px;
+            height: 60px;
+            border: 5px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--accent-color);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* --- HEADER --- */
+        header {
+            background: var(--light-color);
+            box-shadow: var(--shadow);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        header.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        header .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            color: var(--primary-color);
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+        .logo img {
+            width: 80px;
+            height: auto;
+            margin-right: 10px;
+            border-radius: 50%;
+            border: 2px solid var(--accent-color);
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+        }
+
+        nav ul li {
+            margin-left: 20px;
+        }
+
+        nav ul li a {
+            text-decoration: none;
+            color: var(--text-color);
+            font-weight: 600;
+            transition: color 0.3s ease;
+            position: relative;
+        }
+
+        nav ul li a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background-color: var(--accent-color);
+            transition: width 0.3s ease;
+        }
+
+        nav ul li a:hover, nav ul li a.active {
+            color: var(--primary-color);
+        }
+
+        nav ul li a:hover::after {
+            width: 100%;
+        }
+
+        /* --- PAGE SECTIONS --- */
+        .page-section {
+            display: none; /* Sembunyikan semua halaman secara default */
+            padding: 20px 0;
+        }
+
+        .page-section.active {
+            display: block; /* Tampilkan halaman yang aktif */
+        }
+
+        /* --- HERO SECTION --- */
+        .hero {
+            background: linear-gradient(to right, rgba(15,48,86,0.85), rgba(15,48,86,0.7)), url('images/hero.jpg') no-repeat center center/cover;
+            color: var(--light-color);
+            padding: 100px 0;
+            margin-bottom: 40px;
+        }
+
+        .hero .container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            align-items: center;
+        }
+
+        .hero-content .badge {
+            background: var(--accent-color);
+            color: var(--primary-color);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: inline-block;
+            margin-bottom: 15px;
+        }
+
+        .hero h1 {
+            font-family: var(--font-family-heading);
+            font-size: 3rem;
+            margin-bottom: 20px;
+            line-height: 1.2;
+        }
+
+        .hero p {
+            font-size: 1.1rem;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: var(--accent-color);
+            color: var(--primary-color);
+        }
+
+        .btn-primary:hover {
+            background: #b08d40;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 10px rgba(0,0,0,0.2);
+        }
+
+        .hero-image img {
+            width: 100%;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+        }
+
+        /* --- SEARCH & CATEGORY SECTION --- */
+        .search-section, .category-section {
+            margin-bottom: 30px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        .search-section.visible, .category-section.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .search-bar {
+            display: flex;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .search-bar input {
+            flex-grow: 1;
+            padding: 12px 15px;
+            border: 2px solid var(--light-color);
+            border-radius: 5px 0 0 5px;
+            font-family: var(--font-family);
+            font-size: 1rem;
+        }
+
+        .search-bar button {
+            padding: 12px 20px;
+            background: var(--primary-color);
+            color: var(--light-color);
+            border: none;
+            border-radius: 0 5px 5px 0;
+            cursor: pointer;
+            font-family: var(--font-family);
+            font-weight: 600;
+            transition: background-color 0.3s ease;
+        }
+
+        .search-bar button:hover {
+            background: #0a2145;
+        }
+
+        .category-filter {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 10px 20px;
+            background: var(--light-color);
+            border: 2px solid var(--light-color);
+            border-radius: 25px;
+            cursor: pointer;
+            font-family: var(--font-family);
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .filter-btn.active, .filter-btn:hover {
+            background: var(--primary-color);
+            color: var(--light-color);
+            border-color: var(--primary-color);
+        }
+
+        /* --- NEWS SECTION --- */
+        .news-section {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        .news-section.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .news-section h2 {
+            font-family: var(--font-family-heading);
+            text-align: center;
+            margin-bottom: 40px;
+            font-size: 2.5rem;
+            color: var(--primary-color);
+        }
+
+        .news-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .news-card {
+            background: var(--light-color);
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .news-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+
+        .news-card img {
+            width: 100%;
+            height: 180px; /* Tinggi yang lebih proporsional untuk landscape */
+            object-fit: cover;
+            object-position: center; /* Memastikan bagian tengah gambar yang ditampilkan */
+        }
+
+        .news-card-content {
+            padding: 20px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .news-card-content .meta {
+            font-size: 0.8rem;
+            color: #777;
+            margin-bottom: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .news-card-content .meta .article-type {
+            background: var(--accent-color);
+            color: var(--primary-color);
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-weight: 600;
+            font-size: 0.75rem;
+        }
+
+        .news-card-content h3 {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            color: var(--primary-color);
+        }
+
+        .news-card-content p {
+            font-size: 0.9rem;
+            color: #555;
+            flex-grow: 1;
+        }
+
+        /* --- TIMELINE PPDB SECTION --- */
+        .timeline-section {
+            padding: 60px 0;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        .timeline-section.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .timeline-section h2 {
+            font-family: var(--font-family-heading);
+            text-align: center;
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            margin-bottom: 50px;
+        }
+        .timeline {
+            position: relative;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .timeline::after {
+            content: '';
+            position: absolute;
+            width: 6px;
+            background-color: var(--primary-color);
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            margin-left: -3px;
+            border-radius: 3px;
+            z-index: -1; /* Garis timeline berada di belakang lingkaran */
+        }
+        .timeline-container {
+            padding: 10px 40px;
+            position: relative;
+            background-color: inherit;
+            width: 50%;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+        .timeline-container.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .timeline-container::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            right: -10px;
+            background-color: var(--accent-color);
+            border: 4px solid var(--primary-color);
+            top: 25px;
+            border-radius: 50%;
+            z-index: 1;
+        }
+        .timeline-left {
+            left: 0;
+        }
+        .timeline-right {
+            left: 50%;
+        }
+        .timeline-right::after {
+            left: -10px;
+        }
+        .timeline-content {
+            padding: 20px 30px;
+            background-color: var(--light-color);
+            position: relative;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+        }
+        .timeline-content h3 {
+            color: var(--primary-color);
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+        .timeline-content p {
+            margin-bottom: 0;
+        }
+        .timeline-content .date {
+            font-weight: bold;
+            color: var(--secondary-color);
+            display: block;
+            margin-bottom: 10px;
+        }
+        
+        /* --- MODAL --- */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.7);
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background-color: var(--light-color);
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 800px;
+            position: relative;
+            animation: slideIn 0.4s;
+            text-align: left;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .close-btn {
+            color: #aaa;
+            position: absolute;
+            top: 15px;
+            right: 25px;
+            font-size: 35px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .close-btn:hover {
+            color: var(--text-color);
+        }
+        
+        /* Style untuk Modal Berita */
+        #newsModal .modal-content {
+            max-width: 800px;
+            text-align: left;
+        }
+
+        #newsModal .modal-content img {
+            width: 100%;
+            height: 400px;
+            object-fit: cover;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        #newsModal .modal-content .meta-info {
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+            color: #777;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+        }
+
+        #newsModal .modal-content .meta-info span {
+            margin-right: 15px;
+        }
+
+        #newsModal .modal-content .meta-info #modalArticleType {
+            background: var(--accent-color);
+            color: var(--primary-color);
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-weight: 600;
+        }
+        
+        /* Style untuk Paragraf dalam Berita */
+        #newsModal .modal-content .article-body p {
+            text-align: justify;
+            text-indent: 1cm; /* PERUBAHAN: Mengubah indentasi paragraf menjadi 1cm */
+            margin-bottom: 1em;
+        }
+        
+        /* PERUBAHAN: Style khusus untuk kategori 'Mata Sastra' tanpa indentasi */
+        #newsModal .modal-content .article-body.mata-sastra-format p {
+            text-align: left;
+            text-indent: 0; /* Menghilangkan indentasi paragraf */
+            margin-bottom: 1em;
+        }
+        
+        #newsModal .modal-content .article-body p.bold-center {
+            font-weight: bold;
+            text-align: center;
+            text-indent: 0;
+            font-size: 1.1rem;
+            margin: 1.5em 0;
+            color: var(--primary-color);
+        }
+        
+        #newsModal .modal-content .article-body p.italic {
+            font-style: italic;
+        }
+
+        #newsModal .modal-content .author {
+            margin-top: 2em;
+            text-align: right;
+            font-style: italic;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        /* --- Style untuk Format Puisi --- */
+        .poem-container {
+            text-align: left; /* Diubah dari center ke left */
+            /* PERUBAHAN: font-style dihapus agar tidak miring */
+            color: #555;
+            line-height: 1.8;
+        }
+
+        .poem-container h3 {
+            font-family: var(--font-family-heading);
+            text-align: left; /* Diubah dari center ke left */
+            margin: 1.5em 0;
+            color: var(--primary-color);
+            font-style: normal;
+        }
+
+        .poem-container p {
+            text-align: left; /* Diubah dari center ke left */
+            text-indent: 0;
+            margin-bottom: 1.5em;
+            /* PERUBAHAN: font-style dihapus agar tidak miring */
+        }
+        
+        /* --- Style untuk Format Ilmiah --- */
+        .scientific-paper {
+            font-family: 'Times New Roman', Times, serif;
+            line-height: 1.5;
+            color: #333;
+        }
+        
+        .scientific-paper h1 {
+            text-align: center;
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+        }
+        
+        .scientific-paper .author-info {
+            text-align: center; 
+            margin-bottom: 2rem;
+            font-style: italic; /* PERUBAHAN: Nama instansi di italic */
+        }
+        
+        /* PERUBAHAN: Nama penulis (p pertama) tidak italic */
+        .scientific-paper .author-info p:first-child {
+            font-style: normal;
+        }
+        
+        .scientific-paper .abstract {
+            background-color: #f9f9f9;
+            padding: 1rem;
+            border-left: 4px solid var(--primary-color);
+            margin-bottom: 1.5rem;
+        }
+        
+        .scientific-paper .abstract h2 {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .scientific-paper .keywords {
+            /* PERUBAHAN: Menghapus margin-bottom dan menambahkan italic */
+            font-style: italic;
+        }
+        
+        .scientific-paper .keywords span {
+            font-weight: bold;
+        }
+        
+        .scientific-paper h2 {
+            font-size: 1.4rem;
+            margin-top: 1.5rem;
+            margin-bottom: 0.8rem;
+            color: var(--primary-color);
+        }
+        
+        .scientific-paper h3 {
+            font-size: 1.2rem;
+            margin-top: 1.2rem;
+            margin-bottom: 0.6rem;
+        }
+        
+        .scientific-paper p {
+            text-align: justify;
+            text-indent: 1cm; /* PERUBAHAN: Spasi paragraf 1cm */
+            margin-bottom: 1rem;
+        }
+        
+        .scientific-paper .conclusion {
+            margin-top: 2rem;
+            /* PERUBAHAN: Menghapus font-weight: bold; */
+        }
+        
+        .scientific-paper .references {
+            margin-top: 2rem;
+        }
+        
+        .scientific-paper .references ol {
+            padding-left: 2rem;
+        }
+        
+        .scientific-paper .references li {
+            margin-bottom: 0.5rem;
+        }
+
+        /* --- Style untuk Format Ruang Kisah --- */
+        .ruang-kisah-container {
+            text-align: left;
+            color: #555;
+            line-height: 1.8;
+        }
+
+        .ruang-kisah-container p {
+            text-align: justify;
+            text-indent: 1cm;
+            margin-bottom: 1em;
+        }
+
+        .ruang-kisah-container p:first-of-type {
+            text-indent: 0;
+            font-weight: bold;
+            margin-bottom: 1.5em;
+        }
+
+        .ruang-kisah-container p.bold-center {
+            font-weight: bold;
+            text-align: center;
+            text-indent: 0;
+            font-size: 1.1rem;
+            margin: 1.5em 0;
+            color: var(--primary-color);
+        }
+
+        .ruang-kisah-container p.italic {
+            font-style: italic;
+        }
+
+        /* --- Style untuk Modal PPDB --- */
+        #ppdbModal .modal-content {
+            text-align: center; /* PERUBAHAN: Konten modal PPDB di tengah */
+        }
+
+        #ppdbModal .modal-content .btn {
+            margin: 0 auto;
+            display: inline-block;
+        }
+
+        /* --- FOOTER --- */
+        footer {
+            background: var(--primary-color);
+            color: var(--dark-text-color);
+            padding: 50px 0 20px;
+            margin-top: 60px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        footer.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .footer-section h3 {
+            margin-bottom: 15px;
+            color: var(--accent-color);
+        }
+
+        .footer-section p, .footer-section a {
+            color: var(--dark-text-color);
+            text-decoration: none;
+            display: block;
+            margin-bottom: 5px;
+            transition: color 0.3s;
+        }
+
+        .footer-section a:hover {
+            color: var(--light-color);
+        }
+
+        .social-links a {
+            display: inline-block;
+            margin-right: 15px;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 0.9rem;
+        }
+
+        /* --- RESPONSIVE DESIGN --- */
+        @media screen and (max-width: 768px) {
+            header .container {
+                flex-direction: column;
+            }
+            
+            nav ul {
+                margin-top: 15px;
+            }
+
+            .hero .container {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .hero-image {
+                order: -1;
+            }
+
+            .modal-content {
+                width: 95%;
+                padding: 20px;
+                margin: 10% auto;
+            }
+
+            #newsModal .modal-content .article-body p {
+                text-indent: 1cm;
+            }
+            
+            /* Timeline Responsif */
+            .timeline::after {
+                left: 31px;
+            }
+            .timeline-container {
+                width: 100%;
+                padding-left: 70px;
+                padding-right: 25px;
+            }
+            .timeline-container::before {
+                left: 60px;
+                border: medium solid var(--light-color);
+                border-width: 10px 10px 10px 0;
+                border-color: transparent var(--light-color) transparent transparent;
+            }
+            .timeline-left::after, .timeline-right::after {
+                left: 21px;
+            }
+            .timeline-right {
+                left: 0%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Page Loader -->
+    <div class="page-loader" id="pageLoader">
+        <div class="loader"></div>
+    </div>
+
+    <header>
+        <div class="container">
+            <a href="#" class="logo">
+                <img src="logo.jpg" alt="Logo Sekolah">
+                <span>SMA NUSANTARA</span>
+            </a>
+            <nav>
+                <ul>
+                    <li><a href="#" id="berandaLink" class="active">Beranda</a></li>
+                    <li><a href="#" id="ppdbLink">PPDB</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <!-- Halaman Beranda -->
+        <section id="berandaPage" class="page-section active">
+            <!-- Hero Section -->
+            <section class="hero">
+                <div class="container">
+                    <div class="hero-content">
+                        <span class="badge">Berita Nusantara</span>
+                        <h1>Berprestasi, Berkarakter, Berdaya Saing Global</h1>
+                        <p>SMA Nusantara merupakan sekolah swasta yang berkomitmen menyediakan pendidikan berkualitas melalui program Reguler dan International Class Program (ICP). Dengan lingkungan belajar yang nyaman, tenaga pendidik kompeten, serta kurikulum yang dirancang untuk mengembangkan karakter dan kemampuan abad 21, kami membimbing siswa menjadi pribadi yang unggul, percaya diri, dan siap bersaing di tingkat nasional maupun internasional.</p>
+                        <a href="#" class="btn btn-primary" data-id="17">Pilihan Hari Ini</a>
+                    </div>
+                    <div class="hero-image">
+                        <img src="hero.jpg" alt="Hero Image">
+                    </div>
+                </div>
+            </section>
+
+            <!-- Search Bar -->
+            <section class="search-section">
+                <div class="container">
+                    <div class="search-bar">
+                        <input type="text" id="searchInput" placeholder="Cari berita...">
+                        <button id="searchButton">Cari</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Category Filter -->
+            <section class="category-section">
+                <div class="container">
+                    <div class="category-filter">
+                        <button class="filter-btn" data-category="Mata Sastra">Mata Sastra</button>
+                        <button class="filter-btn" data-category="Pahatan Intelektual">Pahatan Intelektual</button>
+                        <button class="filter-btn" data-category="Perspektif">Perspektif</button>
+                        <button class="filter-btn" data-category="Kilas Fakta">Kilas Fakta</button>
+                        <button class="filter-btn" data-category="Ruang Kisah">Ruang Kisah</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- News Grid -->
+            <section class="news-section">
+                <div class="container">
+                    <h2>Berita Terkini</h2>
+                    <div class="news-grid" id="newsGrid">
+                        <!-- Berita akan dimuat di sini oleh JavaScript -->
+                    </div>
+                </div>
+            </section>
+        </section>
+
+        <!-- Halaman Timeline PPDB -->
+        <section id="ppdbPage" class="page-section">
+            <div class="timeline-section">
+                <div class="container">
+                    <h2>Timeline PPDB 2025/2026</h2>
+                    <div class="timeline">
+                        <div class="timeline-container timeline-left">
+                            <div class="timeline-content">
+                                <span class="date">1 - 31 Mei 2025</span>
+                                <h3>Pembukaan Pendaftaran Online</h3>
+                                <p>Calon siswa dapat melakukan pendaftaran secara online melalui website resmi PPDB. Pastikan semua dokumen persyaratan sudah dipersiapkan.</p>
+                            </div>
+                        </div>
+                        <div class="timeline-container timeline-right">
+                            <div class="timeline-content">
+                                <span class="date">3 - 5 Juni 2025</span>
+                                <h3>Seleksi Administrasi dan Wawancara</h3>
+                                <p>Panitia akan melakukan verifikasi dokumen yang telah diunggah oleh calon siswa. Hasil seleksi akan diumumkan pada tahap berikutnya.</p>
+                            </div>
+                        </div>
+                        <div class="timeline-container timeline-left">
+                            <div class="timeline-content">
+                                <span class="date">10 Juni 2025</span>
+                                <h3>Pengumuman Hasil Seleksi</h3>
+                                <p>Pengumuman calon siswa yang diterima akan ditayangkan di website PPDB dan di papan pengumuman sekolah.</p>
+                            </div>
+                        </div>
+                        <div class="timeline-container timeline-right">
+                            <div class="timeline-content">
+                                <span class="date">11 - 14 Juni 2025</span>
+                                <h3>Daftar Ulang</h3>
+                                <p>Calon siswa yang diterima wajib melakukan daftar ulang dengan melengkapi berkas dan membayar biaya pendaftaran ulang sesuai ketentuan.</p>
+                            </div>
+                        </div>
+                        <div class="timeline-container timeline-left">
+                            <div class="timeline-content">
+                                <span class="date">15 Juli 2025</span>
+                                <h3>Hari Pertama Masuk Sekolah</h3>
+                                <p>Selamat datang kepada siswa baru! Kegiatan awal tahun ajaran akan dimulai dengan masa orientasi siswa.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal for News Detail -->
+    <div id="newsModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn news-close-btn">&times;</span>
+            <img id="modalImage" src="" alt="">
+            <h2 id="modalTitle"></h2>
+            <div class="meta-info">
+                <span id="modalArticleType"></span>
+                <span id="modalDate"></span>
+            </div>
+            <div id="modalBody" class="article-body">
+                <!-- Konten berita akan dimuat di sini -->
+            </div>
+            <div id="modalAuthor" class="author">
+                <!-- Nama penulis akan dimuat di sini -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for PPDB -->
+    <div id="ppdbModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn ppdb-close-btn">&times;</span>
+            <h2>Pendaftaran Peserta Didik Baru</h2>
+            <p>Pendaftaran untuk tahun ajaran 2025/2026 belum dibuka. Silakan lihat timeline perkiraan untuk informasi lebih lanjut.</p>
+            <a href="#" id="timelineLink" class="btn btn-primary">Lihat Timeline</a>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>SMA NUSANTARA</h3>
+                    <p>Berprestasi, Berkarakter, Berdaya Saing Global</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Kontak</h3>
+                    <p>Jl. Pendidikan No. 1, Kota Malang</p>
+                    <p>Email: info@smanusantara.sch.id</p>
+                    <p>Telepon: (021) 37465</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Ikuti Kami</h3>
+                    <div class="social-links">
+                        <a href="#">Facebook</a>
+                        <a href="#">Instagram</a>
+                        <a href="#">Twitter</a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; SMA NUSANTARA 1999</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Internal JavaScript -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            // Data Berita
+            const newsData = [
+                {
+                    id: 1,
+                    category: 'Mata Sastra',
+                    articleType: 'Puisi',
+                    title: 'Tiga Jejak Manusia',
+                    summary: 'Tiga puisi yang menghadirkan potret kehidupan manusia dari berbagai sisi, dari perjuangan yang sunyi, pesan alam yang terus mengalir, hingga nasib seseorang yang tersesat dalam pilihannya sendiri.',
+                    author: 'Arlan Ghifari',
+                    body: `<div class="poem-container">
+                        <h3>Sepatu Usang</h3>
+                        <p style="margin-bottom: 2em;">Di ujung pagi yang masih menggigil<br>Ia melangkah dengan derit kecil<br>Bunyi yang hanya dipahami jalan setapak<br>Dan angin yang pernah menjadi saksinya</p>
+                        <p style="margin-bottom: 1em;">Sepatu usang itu<br>Retak di sisi, pudar pada warna<br>Namun selalu menyimpan nyala diam<br>Yang tak pernah padam oleh hujan maupun waktu</p>
+                        <p style="margin-bottom: 1em;">Di setiap jahitan yang hampir terlepas<br>Tersimpan asa yang dijaga rapat<br>Keinginan untuk mengubah nasib<br>Menulis hari esok dengan tinta keberanian</p>
+                        <p style="margin-bottom: 1em;">Ia tahu, langkahnya bukanlah langkah mudah<br>Tanah kadang becek, dunia kadang berat<br>Namun sepatu itu, meski renta<br>Menjadi saksi perjalanan yang tak kenal menyerah</p>
+                        <p style="margin-bottom: 1em;">Maka setiap pagi<br>Ia kembali berjalan<br>Menyusuri harapan<br>Menyulam mimpinya sendiri</p>
+                        <p style="margin-bottom: 1em;">Sebab ia percaya<br>Bahwa di balik tapak yang hampir habis<br>Ada masa depan yang sedang menunggu<br>Yang akan ia capai<br>Setapak demi setapak<br>Bersama sepatu usangnya</p>
+                        
+                        <h3>Pipa Kehidupan</h3>
+                        <p style="margin-bottom: 2em;">Suaranya bergemercak setiap waktu<br>Mengalir dari hilir ke hulu<br>Menyambungkan kehidupan<br>Mengalirkan harapan</p>
+                        <p style="margin-bottom: 1em;">Biasanya berada di hutan<br>Untuk minumnya para hewan dan tumbuhan<br>Manusia pun turut merasakan manfaat<br>Dari dirinya yang mengalir setiap saat</p>
+                        <p style="margin-bottom: 1em;">Namun kini alirannya tak selalu jernih<br>Kadang keruh oleh ulah manusia sendiri<br>Yang lupa bahwa setiap tetesnya<br>Adalah denyut bagi bumi</p>
+                        <p style="margin-bottom: 1em;">Di antara batu-batu ini<br>Ia tetap berusaha bernyanyi<br>Membawa pesan yang tak pernah berhenti<br>Bahwa alam memberi<br>Bukan untuk disakiti</p>
+                        <p style="margin-bottom: 1em;">Meski langkahnya terhambat sampah<br>Dan nafasnya tertahan limbah<br>Ia tetap mengalir pelan<br>Seolah masih percaya<br>Bahwa manusia suatu hari<br>Akan belajar menjaga</p>
+                        <p style="margin-bottom: 1em;">Dan jika suatu hari kita telah sudi<br>Mendengar suaranya kembali<br>Tolong jaga agar alirannya lebih pasti<br>Membawa kehidupan dari sana ke sini<br>Sebagaimana ia telah berjanji<br>Sejak awal bumi berdiri</p>
+                        
+                        <h3>Pemain Dadu</h3>
+                        <p style="margin-bottom: 2em;">Lihatlah orang itu, setiap malam sabtu<br>Dia datang untuk bermain dadu<br>Mungkin, sudah sempurnalah hidupnya<br>Sebab kerjaannya hanya bermain saja<br>Padahal nasib dadu tak menentu<br>Kadang dapat enam dan kadang satu</p>
+                        <p style="margin-bottom: 1em;">Semakin jijik mataku melihat orang itu<br>Tawanya memekikkan mataku<br>Asap rokok menyengat hidungku<br>Kalau hidup hanya untuk bermain dadu<br>Lalu apa gunanya hidup itu?</p>
+                        <p style="margin-bottom: 1em;">Beberapa waktu telah berlalu<br>Tawa yang dulu menghantui setiap malam sabtu<br>Kini sudah tidak tak ada<br>Entah sudah habis uangnya<br>Atau sudah habis nasibnya<br>Sungguh kasihan sekali orang itu<br>Hidup untuk hal yang tidak tentu seperti angka dadu</p>
+                        <p style="margin-bottom: 1em;">Orang-orang mulai bertanya pelan<br>Ke mana perginya lelaki yang selalu menantang keberuntungan<br>Yang mengira dunia bisa tunduk<br>Pada putaran kecil di telapak tangan</p>
+                        <p style="margin-bottom: 1em;">Aku memandang meja kosong itu<br>Dengan rasa yang tak lagi sama<br>Ada getir yang samar<br>Ada iba yang menua</p>
+                        <p style="margin-bottom: 1em;">Sebab bagaimanapun<br>Sekali waktu ia juga manusia<br>Yang mencari cara paling sederhana<br>Untuk menjadi kaya<br>Meski hanya untuk satu malam saja</p>
+                    </div>`,
+                    date: 'Senin, 10 November 2025',
+                    image: 'puisi 1.jpg'
+                },
+                {
+                    id: 2,
+                    category: 'Mata Sastra',
+                    articleType: 'Puisi',
+                    title: 'Jejak Kenangan',
+                    summary: 'Ketiga puisi yang menyoroti bagaimana benda-benda sederhana seperti pena, kapur, bangku, dan rumah tua menyimpan kenangan, pelajaran, serta perjalanan batin manusia.',
+                    author: 'Firda Windi',
+                    body: `<div class="poem-container">
+                        <h3>Pena dan Kapur</h3>
+                        <p style="margin-bottom: 2em;">Pena menari di atas buku<br>Menyimpan kata yang lahir dari kalbu<br>Setiap goresnya membawa arah<br>Setiap tintanya menyimpan marah atau maruah</p>
+                        <p style="margin-bottom: 1em;">Kapur berdiri di depan papan<br>Meski mudah patah dan runtuh di tangan<br>Garis-garis putihnya tetap tampak terang<br>Memberi petunjuk agar langkah tak hilang</p>
+                        <p style="margin-bottom: 1em;">Pena menulis mimpi yang jauh<br>Kapur mengajar agar langkah tak rapuh<br>Keduanya bekerja tanpa keluh<br>Meski sering dianggap sepele dan lusuh</p>
+                        <p style="margin-bottom: 1em;">Pena mengalir pelan dan pasti<br>Merekam pikiran agar tak pergi<br>Menjaga kata yang ingin kembali<br>Menyimpan harapan yang lahir setiap hari</p>
+                        <p style="margin-bottom: 1em;">Kapur berbisik lembut pada ruang<br>Meski suaranya cepat hilang tergenggam waktu yang panjang<br>Ia tetap setia meski mudah berkurang<br>Ia tetap hadir meski sering hilang</p>
+                        <p style="margin-bottom: 1em;">Pena mengikat cerita dalam baris<br>Kapur menjelaskan dunia dengan garis<br>Meski berbeda, tujuannya selaras<br>Memberi cahaya pada mereka yang masih belajar tegas</p>
+                        <p style="margin-bottom: 2em;">Dan ketika hari selesai berlalu<br>Pena kembali diam, kapur kembali layu<br>Namun jejak mereka tinggal di kalbu<br>Menjadi tanda bahwa ilmu tak pernah berhenti menuju</p>
+                        
+                        <h3>Bangku Belakang</h3>
+                        <p style="margin-bottom: 2em;">Di bangku belakang yang agak kusam<br>Aku duduk diam menatap malam<br>Mendengar angin mengetuk perlahan<br>Seperti menyapa seorang kawan</p>
+                        <p style="margin-bottom: 1em;">Bangku itu sering jadi tempatku pergi<br>Ketika hari terasa berat di hati<br>Tempat segala resah berdiam sebentar<br>Sebelum akhirnya kembali menghilang dan mengalir sabar</p>
+                        <p style="margin-bottom: 1em;">Di sini tawa pernah tersimpan<br>Juga rahasia yang tak pernah diucapkan<br>Bangku tua ini jadi saksi diam<br>Tentang langkah-langkah yang perlahan matang</p>
+                        <p style="margin-bottom: 1em;">Kadang hujan datang membawa rindu<br>Daunnya basah menyentuh punggungku<br>Namun bangku belakang tetap menunggu<br>Meski dunia tak selalu biru</p>
+                        <p style="margin-bottom: 1em;">Setiap goresan di kayunya bercerita<br>Tentang waktu yang menua<br>Tentang jejak manusia yang datang dan pergi<br>Meninggalkan kenangan yang sulit dibagi</p>
+                        <p style="margin-bottom: 1em;">Dan ketika aku kembali duduk sore ini<br>Aku tahu bangku itu tak pernah sendiri<br>Ia menampung seluruh sunyi<br>Mengubahnya menjadi tenang dalam hati</p>
+                        <p style="margin-bottom: 1em;">Sebab bangku belakang bukan sekadar tempat berdiam<br>Ia adalah ruang untuk pulang<br>Ketika hidup terasa bising dan panjang</p>
+                        
+                        <h3>Rumah Tua</h3>
+                        <p style="margin-bottom: 2em;">Di pojok sudut rumah itu<br>Tepat di atas ayunan yang mendayu<br>Duduk berdampingan<br>Bersahut kata demi kata</p>
+                        <p style="margin-bottom: 1em;">Bertukar perjalanan hidup<br>Ilahi saksi bekas jejakmu<br>Alam bersorak padamu<br>Menyambut ketulusan kasihmu</p>
+                        <p style="margin-bottom: 1em;">Kasih yang kau toreh di lembar hidupku<br>Bekal kenangan indah darimu<br>Mengalir dalam nadi kecilku<br>Membingkai setiap langkah hidupku</p>
+                        <p style="margin-bottom: 1em;">Kirana terbaik kiriman Tuhan<br>Harapan masa depan di dunia<br>Lembut dengan katamu<br>Meluluh lantahkan kesialan dunia</p>
+                        <p style="margin-bottom: 1em;">Di rumah tua…<br>Menyimpan perca masa lalu<br>Kini tinggal sekeping debu<br>Yang akan menjadi saksi bisu</p>
+                    </div>`,
+                    date: 'Selasa, 11 November 2025',
+                    image: 'puisi 2.jpg'
+                },
+                {
+                id: 3,
+                category: 'Mata Sastra',
+                articleType: 'Cerpen',
+                title: 'Ruang di Balik Jendela',
+                summary: 'Arvin selalu mengira hidupnya biasa saja, hingga seorang anak jalanan yang tak bisa membaca membuatnya mempertanyakan kembali siapa sebenarnya yang sedang mengajari siapa.',
+                author: 'Sabilla Novita',
+                body: `<div class="poem-container">
+                    <h3>Ruang di Balik Jendela</h3>
+                    <p>Sabilla Novita</p>
+                    <p>Di sebuah gang sempit yang selalu riuh oleh suara wajan dan motor lewat, tinggal seorang siswa SMA bernama Arvin. Setiap pagi, ia menatap dunia dari balik jendela rumah kontrakannya yang kecil, jendela dengan kusen kayu lapuk, tapi selalu penuh cahaya. Dari sanalah ia belajar memahami kehidupan, hiruk pikuk pasar, tawa anak-anak kecil, sampai bisik-bisik pertengkaran rumah tangga tetangga yang tak pernah sepenuhnya tertutup tirai</p>
+                    <p>Arvin bukan anak yang suka banyak bicara. Ia lebih senang mengamati. Mungkin karena itulah ia pandai menulis. Kata-kata baginya seperti jembatan, menghubungkan apa yang tak bisa ia ucapkan dengan apa yang ingin ia pahami.</p>
+                    <p>Suatu hari, sekolahnya mengadakan program kunjungan sosial ke Rumah Singgah Mandiri, tempat anak-anak jalanan belajar membaca dan menulis. Awalnya Arvin mengira ia hanya akan menjadi relawan yang duduk di meja, membantu mengeja kata demi kata. Namun, begitu melihat seorang anak bernama Raga yang berseragam lusuh, tubuh kurus, tapi matanya menyala, Arvin tahu ia akan belajar lebih banyak daripada mengajar</p>
+                    <p>Raga tak bisa membaca. Tetapi ia punya rasa ingin tahu yang buas. Ia menunjuk setiap huruf seolah itu adalah pintu ke dunia lain.</p>
+                    <p>"Bang, huruf ini apa? Terus yang ini bunyinya bagaimana?"</p>
+                    <p>Arvin menjawab satu-satu, perlahan, sabar. Raga menatapnya seperti menatap guru pertamanya, padahal Arvin bukan guru, hanya siswa yang kebetulan membawa sedikit cahaya dari jendelanya sendiri.</p>
+                    <p>Hari-hari berlalu, Arvin semakin sering datang ke rumah singgah, bahkan setelah program sekolah selesai. Ia mulai mengenal kehidupan di luar ruang-ruang kelas yang nyaman, anak-anak yang tidur di emperan toko, ibu-ibu yang berjuang berjualan gorengan agar bisa menyekolahkan anaknya, dan para relawan yang bekerja tanpa cahaya sorot siapa pun.</p>
+                    <p>Dari semua itu, Raga adalah cermin kehidupan sosial yang paling jujur. Pada suatu sore, setelah belajar huruf "B", Raga berkata,</p>
+                    <p>"Bang, kalau aku bisa baca, aku bisa jadi apa ya?"</p>
+                    <p>Arvin terdiam. Pertanyaan itu sederhana, tapi terasa seperti mengetuk sesuatu di dadanya.</p>
+                    <p>"Kamu bisa jadi apa pun," jawab Arvin, "yang penting kamu percaya sama dirimu dulu."</p>
+                    <p>Raga tersenyum, giginya ompong, tapi tulus. "Kalau gitu, nanti kalau aku udah bisa baca lancar, aku mau ngajar anak-anak lain. Biar mereka juga bisa mimpi."</p>
+                    <p>Kalimat itu membuat Arvin menunduk. Betapa besar mimpi yang lahir dari seseorang yang hidup dengan begitu sedikit.</p>
+                    <p>Malam itu, di kamar kontrakannya, Arvin menatap jendela dan menulis cerpen untuk lomba tingkat provinsi. Bukan tentang dirinya, bukan tentang sekolah, melainkan tentang seorang anak kecil bernama Raga yang ingin mengajar dunia.</p>
+                    <p>Cerpen itu membuatnya meraih juara kedua. Guru-guru memuji, teman-teman menepuk bahu. Tapi bagi Arvin, kemenangan itu milik Raga, anak kecil yang tak punya buku, tapi punya semangat yang tak bisa dibeli siapa pun.</p>
+                    <p>Seminggu kemudian Arvin kembali ke rumah singgah membawa hadiah dari uang pembinaan: satu set buku baca bergambar dan pensil warna. Raga yang menerima, melonjak kegirangan sampai hampir menjatuhkan mejanya.</p>
+                    <p>"Bang, aku bakal belajar lebih keras lagi. Terus nanti... aku bakal bikin cerpen juga! Kayak abang."</p>
+                    <p>"Arvin tertawa. "Kalau gitu, aku bakal jadi pembaca yang pertama."</p>
+                    <p>Sore itu, cahaya matahari masuk dari jendela rumah singgah. Debu-debu kecil berterbangan, tapi tak satu pun menghalangi sinar yang jatuh ke wajah mereka. Dalam cahaya itu, Arvin tahu satu hal...</p>
+                    <p>Kadang, kehidupan sosial bukan tentang membantu dari tempat yang tinggi, melainkan tentang duduk sejajar, saling belajar, dan memberi ruang bagi mimpi siapa pun untuk tumbuh.</p>
+                    <p>Dan dari balik jendela kehidupannya, Arvin akhirnya memahami bahwa dunia menjadi lebih baik bukan oleh mereka yang paling hebat, tetapi oleh mereka yang tak lelah melihat sesamanya sebagai manusia.</p>
+                </div>`,
+                date: 'Rabu, 12 November 2025',
+                image: 'cerpen 1.jpg'
+                },
+                {
+                    id: 4,
+                    category: 'Mata Sastra',
+                    articleType: 'Cerpen',
+                    title: 'Ketupat di Lapangan SMA',
+                    summary: 'Awalnya kami mengira ini hanya acara sekolah biasa, sampai suasana lapangan berubah tegang.',
+                    author: 'Mila Karmila',
+                    body: `<div class="poem-container">
+                        <h3>Ketupat di Lapangan SMA</h3>
+                        <p>Mila Karmila</p>
+                        <p>Pagi itu, lapangan SMA kami sudah dipenuhi suara ramai sejak bel masuk pertama berbunyi. Spanduk kecil bertuliskan Hari Tradisi Sekolah terpasang di pagar, bergoyang tertiup angin. Aku dan teman-teman kelas XI mendapat tugas menyiapkan ketupat untuk acara bersama. Tikar digelar seadanya, meja lipat disusun tidak rapi, dan daun kelapa menumpuk di sudut lapangan.</p>
+                        <p>Aku membantu Dinda menganyam ketupat, meski jariku beberapa kali salah lipat. Di sekitar kami, suasana campur aduk antara semangat dan keluhan. Panas mulai terasa, sementara acara belum juga dimulai.</p>
+                        <p>"Kenapa sih harus bikin ketupat sendiri?" keluh Raka sambil duduk bersandar di pagar. "Buang waktu. Hasilnya juga belum tentu bisa dimakan."</p>
+                        <p>Aku melirik ketupat di tanganku yang bentuknya miring. Beberapa ketupat milik teman lain bahkan bocor sebelum diisi nasi. Dinda mulai kesal karena daun kelapanya sobek, dan waktu terus berjalan. Beberapa siswa memilih duduk dan main ponsel, meninggalkan tugas yang seharusnya dikerjakan bersama.</p>
+                        <p>"Lihat, bocor lagi," kata Dinda dengan nada kesal sambil menunjukkan ketupat yang nasinya tumpah ke tikar. "Ya gimana, dari tadi bikinnya asal-asalan," sahut Raka tanpa menoleh.</p>
+                        <p>Aku berhenti menganyam. "Raka, kita semua capek. Jangan nyalahin satu orang."</p>
+                        <p>"Capek itu bukan alasan," balasnya. "Kalau dari awal rapi, nggak bakal begini."</p>
+                        <p>Suasana mendadak sunyi. Beberapa teman saling pandang, lalu memilih menjauh. Aku merasakan panas di wajahku, entah karena matahari atau emosi. Ketupat di tanganku terlepas dan jatuh ke tanah.</p>
+                        <p>Bu Anisa mendekat. "Kenapa berhenti?" tanyanya pelan.</p>
+                        <p>"Nggak apa-apa, Bu," jawabku cepat, meski suaraku terdengar berbeda.</p>
+                        <p>Bu Anisa memandang kami satu per satu. "Tradisi ini bukan lomba siapa yang paling rapi," katanya. "Kalau capek, istirahat sebentar. Kalau salah, diperbaiki bareng."</p>
+                        <p>Raka menghela napas. "Maaf. Aku cuma pengin cepat selesai."</p>
+                        <p>Aku mengangguk. "Aku juga. Mungkin kita kebanyakan gengsi."</p>
+                        <p>Kami kembali duduk melingkar. Ketupat yang tersisa dikerjakan bersama, tanpa banyak komentar. Hasilnya tetap tidak sempurna, tapi cukup.</p>
+                        <p>Saat ketupat dibagikan, Raka menyodorkan satu padaku. "Yang ini masih utuh," katanya sambil tersenyum kecil.</p>
+                        <p>Aku menerimanya. Di lapangan yang panas itu, ketegangan perlahan hilang, diganti tawa ringan dan rasa lega.</p>
+                        <p>Hari itu aku belajar, kebersamaan bukan tentang tidak pernah berselisih, melainkan tentang mau berhenti, mendengar, lalu melanjutkan bersama.</p>
+                    </div>`,
+                    date: 'Kamis, 13 November 2025',
+                    image: 'cerpen 2.jpg'
+                },
+                {
+                    id: 5,
+                    category: 'Mata Sastra',
+                    articleType: 'Fabel',
+                    title: 'Lutung dan Pohon Lengkar',
+                    summary: 'Tak ada yang menyangka, satu buah lengkar bisa menjatuhkan lutung paling congkak di seluruh hutan.',
+                    author: 'Mikayla Suherman',
+                    body: `<div class="poem-container">
+                        <h3>Lutung dan Pohon Lengkar</h3>
+                        <p>Mikayla Suherman</p>
+                        <p>Di sebuah hutan lembap di kaki Gunung Wana Svarga, tumbuh sebuah pohon lengkar yang terkenal karena buahnya yang manis dan harum. Buah lengkar hanya berbuah sekali dalam setahun, dan siapa pun yang memakannya dipercaya akan mendapat ketenangan hati. Penduduk desa di sekitar hutan menyebutnya Pohon Penawar Diri, warisan dari cerita para leluhur.</p>
+                        <p>Di hutan itu hidup seekor lutung bernama Bara, terkenal cerdas tetapi congkak. Ia sering memamerkan kelincahannya, menertawakan hewan lain yang geraknya lambat atau kurang luwes. Ada pula Kura-Kura Belang, hewan tua yang berjalan perlahan, namun dihormati karena kebijaksanaannya.</p>
+                        <p>Suatu pagi, aroma buah lengkar yang baru matang menyebar ke seluruh hutan. Hewan-hewan berkumpul di bawah pohon, menunggu waktu yang tepat untuk memetik buah itu bersama-sama, sebuah tradisi yang dijaga turun-temurun.</p>
+                        <p>Namun Bara, dengan dada terbusung dan tawa kecil penuh kemenangan, melompat ke dahan tertinggi. "Buah ini terlalu istimewa untuk dibagi," katanya. "Aku yang paling cepat, paling cerdas, paling gesit. Tentu akulah yang pantas menikmati semuanya."</p>
+                        <p>Hewan-hewan lain saling pandang. Mereka tahu Bara pandai memanjat, tetapi tak pernah belajar tentang sikap hormat dan kebersamaan.</p>
+                        <p>Bara memetik satu demi satu buah lengkar. Ia melahapnya rakus, seakan takut kelezatannya akan direbut makhluk lain. Getah buah lengkar menetes ke bulunya, membuatnya lengket. Kura-Kura Belang memperingatkan, "Bara, jangan serakah. Pohon lengkar hanya memberi ketenangan pada hati yang bersih."</p>
+                        <p>Bara hanya tertawa. "Kau hanya iri karena kakimu lambat! Lihatlah, betapa mudahnya aku mendapatkan semuanya!"</p>
+                        <p>Namun ketika Bara memetik buah terbesar, buah yang konon menyimpan doa para leluhur, dahan pohon lengkar goyah. Akar tua yang rusak oleh tarikan rakus Bara patah. Dahan itu runtuh bersama Bara, menjatuhkannya ke semak penuh duri.</p>
+                        <p>Bara menjerit. Bulunya bukan hanya lengket oleh getah, tetapi juga dipenuhi goresan duri. Ia tak dapat bergerak dengan lincah seperti biasanya, tubuhnya terasa berat dan perih. Buah lengkar yang ia perebutkan berjatuhan, sebagian hancur oleh tanah.</p>
+                        <p>Hewan-hewan tak menertawakan Bara. Mereka justru menolongnya bangkit, membersihkan luka-lukanya. Kura-Kura Belang mendekat dan berkata lembut, "Ketenangan bukanlah hadiah untuk yang paling gesit, Bara. Ia adalah anugerah untuk mereka yang tahu cara berbagi."</p>
+                        <p>Bara menunduk. Untuk pertama kalinya, kesombongannya runtuh, digantikan rasa malu yang dalam. "Aku… aku hanya ingin diakui," gumamnya.</p>
+                        <p>Kura-Kura Belang tersenyum. "Diakui bukan karena mengambil semua, tetapi karena memberi sesuatu. Leluhur kita mengajarkan, berkah tak pernah lahir dari keserakahan."</p>
+                        <p>Sejak hari itu, Bara berubah. Ia masih lincah, masih cerdas, tetapi kini ia menjadi yang pertama menawarkan bantuan, bukan yang pertama menguasai segala hal. Ketika musim lengkar tahun berikutnya tiba, ia menunggu bersama hewan lain dan membagikan buah pertama kepada Kura-Kura Belang.</p>
+                        <p>Dan hutan Wana Svarga kembali hidup dalam harmoni, mengajarkan bahwa keserakahan hanya memberi luka, sementara kerendahan hati memberi ruang bagi ketenangan.</p>
+                    </div>`,
+                    date: 'Jumat, 14 November',
+                    image: 'fabel 1.jpg'
+                },
+                {
+                    id: 6,
+                    category: 'Mata Sastra',
+                    articleType: 'Fabel',
+                    title: 'Lembayung di Punggung Bukit',
+                    summary: 'Saat angin Bukit Lembayung mulai bernyanyi seperti seruling kematian, seekor kelinci justru melompat ke arah bahaya.',
+                    author: 'Ahmad Giofani',
+                    body: `<div class="poem-container">
+                        <h3>Lembayung di Punggung Bukit</h3>
+                        <p>Ahmad Giofani</p>
+                        <p>Di lereng Bukit Lembayung, hiduplah Kelinci Ranta, seekor kelinci kecil yang dikenal lincah namun mudah cemas. Ia tinggal di tepi hutan bambu bersama sahabat karibnya, Burung Punai Mela, yang selalu terbang rendah setiap pagi untuk menyapa Ranta.</p>
+                        <p>Meski berbeda dunia, satu melompat dan satu terbang, keduanya dipersatukan oleh satu hal: mereka saling mengerti.</p>
+                        <p>Suatu musim, angin dari laut selatan bertiup lebih kencang dari biasanya. Warga hutan mulai gelisah. Menurut cerita para tetua, bila angin mengalun seperti seruling panjang, maka Badai Barak akan turun dari punggung bukit, menghancurkan apa pun yang tak kuat bertahan.</p>
+                        <p>"Ranta, kau harus ikut berlindung di gua batu," ujar Mela saat pagi masih biru.</p>
+                        <p>"Aku tahu… tapi keluarga Pakusa si Landak tinggal jauh di seberang padang rumput. Kalau badai datang lebih cepat, mereka tak akan sempat menyelamatkan diri," kata Ranta, gelisah.</p>
+                        <p>Mela menatap sahabatnya. "Kau tidak perlu melakukan itu sendirian."</p>
+                        <p>Namun Ranta bersikeras. Ia melompat menembus ilalang, diterpa angin yang kian menurun nada. Sementara itu, Mela mengepakkan sayap, terbang mengikuti dari atas, memastikan sahabatnya tak terguling angin.</p>
+                        <p>"Jangan berhenti!" seru Mela.</p>
+                        <p>Mereka sampai di rumah Pakusa sebelum badai memekik dalam. Dengan terengah, Ranta memberi peringatan. Pakusa dan keluarganya segera berlarian mengikuti keduanya menuju gua batu di punggung bukit.</p>
+                        <p>Saat semua akhirnya tiba dengan selamat, hujan mengguyur seperti tirai yang dijatuhkan dari langit. Napas Ranta terengah, tapi hatinya hangat. Di sampingnya, Mela merapikan bulu-bulunya yang kusut.</p>
+                        <p>"Kau gila, Ranta," ujar Mela sambil tertawa kecil.</p>
+                        <p>"Kalau sendiri, mungkin aku sudah tersapu badai," jawab Ranta. "Tapi aku tahu, kau pasti datang."</p>
+                        <p>Pakusa mendekat, matanya berkaca. "Kalian berdua bukan hanya sahabat satu sama lain, tapi sahabat bagi hutan ini."</p>
+                        <p>Badai mereda menjelang sore, meninggalkan aroma tanah basah dan sinar lembayung di puncak bukit. Ranta dan Mela berdiri berdampingan, memandangi langit yang perlahan membuka warna.</p>
+                        <p>"Persahabatan itu seperti lembayung," gumam Mela, "ia muncul setelah langit bergemuruh, tetapi justru membuat senja terasa lebih indah."</p>
+                        <p>Ranta mengangguk. Di tengah hening, ia sadar: bukan kecepatan yang membuatnya kuat, bukan pula sayap Mela yang membuatnya selamat, tetapi keberanian yang lahir dari persahabatan yang tulus.</p>
+                        <p>Sejak hari itu, legenda Ranta dan Mela dituturkan sebagai kisah kearifan Bukit Lembayung, bahwa persahabatan sejati tak mengenal perbedaan bentuk, suara, atau cara hidup; ia hanya butuh hati yang saling menjaga.</p>
+                    </div>`,
+                    date: 'Jumat, 21 November 2025',
+                    image: 'fabel 2.jpg'
+                },
+                {
+                    id: 7,
+                    category: 'Kilas Fakta',
+                    articleType: 'Karya Seni',
+                    title: 'Pameran Seni dan Inovasi SMA Nusantara Dapat Sambutan Positif Masyarakat',
+                    summary: 'Kepala Kampung Sidomulyo, Mugiyanto, bersama istri menghadiri Pameran Gelar Karya bertema *"Mewujudkan Generasi Hebat Cinta Kreativitas"* yang diselenggarakan oleh SMA Nusantara. Acara ini menampilkan beragam karya kreatif siswa dan mendapat apresiasi dari pemerintah kampung, guru, orang tua, serta masyarakat. Kegiatan tersebut diharapkan dapat terus dilaksanakan untuk menumbuhkan kreativitas dan kepercayaan diri siswa.',
+                    author: 'Figur Angger',
+                    body: `<p>Kepala Kampung Sidomulyo, Mugiyanto, bersama istri, menghadiri acara Pameran Gelar Karya bertema "Mewujudkan Generasi Hebat Cinta Kreativitas" yang diselenggarakan oleh SMA Nusantara. Acara ini menjadi wadah bagi para siswa untuk menunjukkan potensi dan karya terbaik mereka dalam bidang seni dan kreativitas. Kegiatan yang berlangsung di aula utama sekolah tersebut berjalan meriah dan mendapat perhatian luas dari masyarakat.</p>
+                    <p>Dalam sambutannya, Mugiyanto menyampaikan rasa bangga atas kreativitas dan inovasi yang ditampilkan oleh para siswa. Ia mengatakan, "Saya sangat terkesan dengan karya-karya yang dihasilkan anak-anak kita. Kreativitas seperti ini perlu terus dikembangkan agar dapat menjadi bekal bagi mereka di masa depan." Selain itu, ia menambahkan bahwa kegiatan semacam ini sangat penting untuk membangun rasa percaya diri dan semangat belajar siswa. "Saya berharap pameran seperti ini bisa terus dilaksanakan setiap tahun sebagai sarana untuk memotivasi para pelajar dan menumbuhkan budaya berkarya di lingkungan sekolah," ujarnya.</p>
+                    <p>Acara pameran ini menampilkan berbagai jenis karya kreatif, mulai dari seni rupa, kerajinan tangan dari bahan daur ulang, produk kuliner hasil kreasi siswa, hingga inovasi teknologi sederhana. Setiap kelas menyiapkan stan pameran yang memperlihatkan proses pembuatan hingga hasil akhir karya, sehingga pengunjung dapat menyaksikan proses kreatif siswa secara langsung.</p>
+                    <p>Salah satu guru pembina seni rupa, Ibu Ratna, mengungkapkan kebahagiaannya atas semangat para siswa dalam mengikuti kegiatan ini. Ia menyampaikan, "Anak-anak menunjukkan dedikasi yang luar biasa dalam mempersiapkan karya mereka. Mereka belajar bekerja sama, berpikir kreatif, dan menyelesaikan masalah secara mandiri."</p>
+                    <p>Acara ini juga dihadiri oleh para guru, orang tua siswa, serta sejumlah tokoh masyarakat setempat. Mereka memberikan apresiasi yang tinggi terhadap penyelenggaraan kegiatan yang dinilai mampu memberikan kontribusi nyata bagi perkembangan minat dan bakat siswa.</p>
+                    <p>Dengan terselenggaranya pameran ini, SMA Nusantara berharap dapat mencetak generasi yang tidak hanya unggul dalam aspek akademik, tetapi juga memiliki karakter kreatif, inovatif, dan siap menghadapi tantangan zaman. Pihak sekolah menyampaikan bahwa kegiatan seperti ini akan terus dikembangkan sebagai bagian dari program penguatan profil pelajar Pancasila.</p>`,
+                    date: 'Senin, 17 November 2025 | 13:36',
+                    image: 'berita 1.jpg'
+                },
+                {
+                    id: 8,
+                    category: 'Kilas Fakta',
+                    articleType: 'Karya Sastra',
+                    title: 'Gerak dan Kata Menyatu Membentuk Harmoni Padu Sendratari',
+                    summary: 'Pertunjukan sendratari oleh siswa kelas XI SMA Nusantara sukses digelar selama sepekan pada 11–18 November 2025 di aula utama sekolah sebagai tugas akhir mata pelajaran Bahasa Indonesia. Berbagai tema cerita rakyat, legenda daerah, hingga fiksi bermuatan nilai moral ditampilkan dengan kreativitas tinggi dan mendapat apresiasi warga sekolah. Kegiatan ini memberi pengalaman berharga bagi siswa dalam bekerja sama, berkomunikasi, dan mengekspresikan seni pertunjukan.',
+                    author: 'Fitri Cahya Dwi Anggriani',
+                    body: `<p>Pertunjukan sendratari oleh kelas XI SMA Nusantara sukses digelar selama satu pekan, pada (11–18/11/2025). Pertunjukan dilaksanakan tepat di lantai dua aula utama SMA Nusantara. Pertunjukan sendratari digelar sebagai syarat untuk memenuhi tugas akhir mata pelajaran bahasa Indonesia tepatnya pada materi "drama". Kreasi siswa-siswi kelas XI dalam menyajikan berbagai gerakan tari, narasi, dialog, serta permainan ekspresi sukses menyita perhatian seluruh warga SMA Nusantara.</p>
+                    <p>Berbagai tema berhasil diangkat dalam pertunjukan sendratari oleh siswa-siswi kelas XI SMA Nusantara, mulai dari legenda daerah, kisah-kisah rakyat nusantara, hingga cerita fiksi yang mengandung nilai moral. Acara dibuka dengan sambutan hangat dari kepala sekolah SMA Nusantara dan guru pengampu mata pelajaran bahasa Indonesia, disusul dengan rangkaian pertunjukan sendratari yang berjudul Lutung Kasarung, Lembu Suro, Bumi Manusia, Nestapa Prambayu, Gendhing Amangkurat, Cinderelas, Keris Siamang Tunggal, Sakera Sang Pejuang, Roro Mendhut, hingga Maling Kundang.</p>
+                    <p>Pertunjukan sendratari telah dipersiapkan sejak bulan Januari. Kesuksesan pertunjukan sendratari tak lepas dari kontribusi siswa-siswi khususnya kelas XI yang secara mandiri menyusun kepanitiaan, membuat konsep acara, menyusun naskah, latihan koreografi, serta menyiapkan properti dan kostum pertunjukan.</p>
+                    <p>"Kesuksesan acara ini ada di aspek komunikasi yang baik dan dukungan penuh dari guru pengampu." ujar Ardi sebagai salah satu aktor dalam sendratari Lutung Kasarung.</p>
+                    <p>"Sebenarnya, dukanya lumayan banyak. Capeknya tuh luar biasa, apalagi ini aku baru pertama kali ikut berkontribusi bikin acara yang cukup besar. Senangnya juga ada, acara berjalan baik dan sukses beneran bikin seneng!" ungkap Nabilah salah satu panitia pertunjukan sendratari.</p>
+                    <p>Kegiatan ini memberikan pengalaman berkesan yang tak terlupakan bagi siswa kelas XI SMA Nusantara. Banyak dari mereka yang mengaku bangga dan bahagia atas pertunjukan yang sukses dipersembahkan kepada seluruh warga SMA Nusantara.</p>`,
+                    date: 'Selasa, 18 November 2025 | 09:12 WIB',
+                    image: 'berita 5.jpg'
+                },
+                {
+                    id: 9,
+                    category: 'Kilas Fakta',
+                    articleType: 'Karya Ilmiah',
+                    title: 'Dari Gawai ke Riset Ilmiah: Citra Dewi, Siswi SMA Nusantara, Bongkar Dampak Aplikasi Video pada Konsentrasi Belajar',
+                    summary: 'Ujian Karya Tulis Ilmiah (KTI) siswa kelas XII SMA Nusantara dilaksanakan pada Rabu, 19 November 2025 di Aula Serbaguna sebagai ajang pembuktian kemampuan riset dan presentasi akademik siswa. Salah satu karya yang menonjol adalah penelitian Citra Dewi tentang dampak video pendek terhadap konsentrasi belajar, yang mendapat perhatian dewan penguji. Pihak sekolah berharap hasil KTI ini dapat melatih berpikir kritis siswa sekaligus menjadi bahan pertimbangan kebijakan akademik sekolah.',
+                    author: 'Jihaan Nabiila Layyina',
+                    body: `<p>Suasana tegang bercampur fokus terlihat jelas di Aula Serbaguna SMA Nusantara saat berlangsungnya sesi ujian Karya Tulis Ilmiah (KTI) bagi siswa-siswi kelas XII, pada hari Rabu, 19 November 2025 (19-11-2025). Kegiatan ini bukan hanya formalitas, melainkan ajang pembuktian kemampuan akademik dan kedalaman riset mandiri mereka di hadapan dewan penguji yang terdiri dari para guru senior.</p>
+                    <p>Puncak perhatian tertuju pada presentasi siswi berprestasi, Citra Dewi, dengan karya berupa artikel yang berjudul "Dampak Aplikasi Singkat Video Terhadap Konsentrasi Belajar Siswa SMA Nusantara." Dengan setiap isi halaman yang terstruktur dan argumen yang lugas, Citra menjelaskan metodologi pengumpulan datanya, termasuk survei terperinci yang ia lakukan di antara 150 responden siswa sekolah.</p>
+                    <p>Citra Dewi, siswi yang dikenal memiliki hobi membaca dan analisis data, menjelaskan bahwa ia termotivasi untuk meneliti topik tersebut setelah mengamati tren digital yang sedang marak. "Kami ingin membuktikan secara ilmiah sejauh mana penggunaan media sosial video instan atau video pendek mempengaruhi rentang fokus kami di kelas. Ini adalah upaya mencari solusi nyata berbasis data, bukan sekadar opini," ungkap Citra dengan yakin, menjawab pertanyaan kritis dari tim penguji.</p>
+                    <p>Wakil Kepala Sekolah Bidang Kurikulum, Bapak Setiawan Adi, M.Pd., menyatakan bahwa program KTI wajib ini adalah investasi jangka panjang. "KTI jauh lebih dari sekadar syarat kelulusan. Ini adalah wahana melatih siswa menguasai metodologi penelitian dan berpikir secara sistematis. Selain itu, dengan adanya KTI, para siswa juga dapat mulai belajar tentang penulisan artikel yang baik dan benar. Kami menuntut mereka untuk mampu mengkritisi, menganalisis, dan mempraktikkan ilmu, yang merupakan bekal penting untuk dunia perkuliahan," jelas Bapak Setiawan, yang menyebut kualitas riset tahun ini menunjukkan peningkatan signifikan.</p>
+                    <p>Diharapkan, hasil KTI ini tidak hanya bernilai akademik, tetapi juga menjadi bahan acuan bagi kebijakan sekolah terkait penggunaan gawai dalam lingkungan belajar.</p>`,
+                    date: 'Rabu, 19 November 2025 | 14.32 WIB',
+                    image: 'berita 7.jpg'
+                },
+                {
+                    id: 10,
+                    category: 'Kilas Fakta',
+                    articleType: 'Eksperimen Kreatif',
+                    title: 'SMA Nusantara Dorong Inovasi Energi Bersih: Siswa Ubah Air Gambut Jadi Listrik',
+                    summary: 'Siswa SMA Nusantara meluncurkan proyek sains pemanfaatan air gambut sebagai sumber energi listrik dalam ajang Science Week dan mendapat sambutan positif. Dengan konsep sel volta sederhana, prototipe yang dibuat mampu menghasilkan tegangan hingga 13 volt dan menunjukkan potensi pemanfaatan sumber daya lokal sebagai energi terbarukan. Proyek ini merupakan bagian dari program Green Innovation Lab dan direncanakan untuk dikembangkan serta diuji pada skala yang lebih besar.',
+                    author: 'Ghefira Indah Saraswati',
+                    body: `<p>Siswa SMA Nusantara meluncurkan proyek sains yang memanfaatkan air gambut sebagai sumber energi listrik, inovasi ini dipamerkan pada Science Week sekolah dan mendapat sambutan hangat.</p>
+                    <p>Menggunakan bahan-bahan sederhana seperti air gambut, lempeng tembaga dan seng bekas, serta kawat, tim siswa berhasil membuat prototipe pembangkit listrik mini yang menghasilkan tegangan hingga 13 volt. Teknik ini mirip dengan konsep sel volta, di mana keasaman air gambut berfungsi sebagai penghantar ion.</p>
+                    <p>Salah satu siswa penggagas proyek dari kelas XI, Putri Nazwa (16) menjelaskan motivasi di balik ide ini, "kami tinggal di wilayah dengan banyak lahan gambut, dan kami menyadari betapa sumber daya lokal ini belum dimanfaatkan secara maksimal. Dengan eksperimen sederhana, kami ingin menunjukkan bahwa energi terbarukan bisa datang dari alam sekitar kita,"</p>
+                    <p>Seorang guru Fisika SMA Nusantara, Ibu Ratna Dewi memberi apresiasi, "saya bangga melihat siswa tidak hanya membaca teori, tetapi juga merancang eksperimen dari bahan lokal. Ini cara pembelajaran STEM yang sangat kontekstual dan mendorong kesadaran lingkungan," ujar Ibu Ratna.</p>
+                    <p>Menurut sekolah, proyek ini juga merupakan bagian dari program Green Innovation Lab yang baru dibuka untuk murid kelas X hingga XII. Laboratorium ini memberi ruang bagi siswa untuk bereksperimen dan mengembangkan solusi energi berkelanjutan. Sebagai langkah ke depan, tim siswa berencana memperbesar kapasitas pembangkit dan melakukan pengujian efisiensi untuk skala yang lebih besar. Sekolah juga menjajaki kerja sama dengan komunitas lokal dan lembaga lingkungan untuk mengimplementasikan prototipe ini di desa-desa yang memiliki sumber gambut melimpah.</p>
+                    <p>Dengan inisiatif ini, SMA Nusantara berharap bisa memperkuat profilnya sebagai sekolah yang inovatif, peduli lingkungan, dan menjunjung pembelajaran berbasis riset nyata.</p>`,
+                    date: 'Kamis, 20 November 2025 | 15.10 WIB',
+                    image: 'berita 10.jpg'
+                },
+                {
+                    id: 11,
+                    category: 'Kilas Fakta',
+                    articleType: 'karya Seni',
+                    title: 'SMA Nusantara Perkuat Identitas Budaya Lewat Batik Karya Siswa',
+                    summary: 'SMA Nusantara menyelenggarakan kegiatan membatik sebagai ujian mata pelajaran Prakarya bagi seluruh siswa kelas XI pada Sabtu, 22 November, di lapangan voli sekolah. Kegiatan ini bertujuan menumbuhkan kecintaan siswa terhadap budaya lokal sekaligus menjadi bagian dari penguatan kurikulum berbasis proyek (P5). Karya batik siswa rencananya akan dipamerkan dalam pameran seni sekolah pada Januari mendatang.',
+                    author: 'Figur Angger',
+                    body: `<p>SMA Nusantara menyelenggarakan kegiatan membatik sebagai syarat ujian mata pelajaran prakarya pada kelas XI. Kegiatan membatik dilaksanakan pada hari Sabtu (22/11) Pukul 08.00 WIB di lapangan voli terbuka. Kegiatan tersebut diikuti oleh seluruh siswa kelas XI SMA Nusantara. Selain sebagai syarat ujian mata pelajaran prakarya, kegiatan membatik digelar dalam upaya memperkuat karakter budaya lingkungan sekolah. Karya-karya batik siswa akan ditampilkan pada pameran seni yang akan dilaksanakan pada bulan Januari mendatang. Kegiatan dibuka dengan pembagian kain dan lilin dari pihak SMA Nusantara.</p>
+                    <p>Kepala SMA Nusantara, Rina Kusuma, menyatakan bahwa kegiatan ini dibentuk sebagai respon terhadap menurunnya minat generasi muda pada warisan budaya lokal. “Kami ingin siswa tidak hanya mengenal batik sebagai pakaian, tetapi memahami proses kreatif, filosofi, dan nilai budaya yang terkandung di dalamnya,” ujarnya memantau kegiatan membatik siswa.</p>
+                    <p>Salah satu siswa, Septia Indah, mengungkapkan antusiasmenya mengikuti kegiatan tersebut. “Awalnya saya kira membatik itu sulit dan membosankan. Tapi setelah mencoba sendiri, ternyata prosesnya seru!” katanya.</p>
+                    <p>Kegiatan membatik ini juga menjadi bagian dari penguatan kurikulum berbasis proyek (P5) yang diterapkan sekolah. Guru Prakarya SMA Nusantara, Kamilah Ningsih, menambahkan bahwa kegiatan tersebut mendorong kreativitas sekaligus menanamkan rasa bangga terhadap identitas bangsa.</p>
+                    <p>Dengan adanya kegiatan membatik, SMA Nusantara berharap dapat melahirkan generasi muda yang tidak hanya terampil secara artistik, tetapi juga memiliki kesadaran budaya yang kuat.</p>`,
+                    date: 'Sabtu, 22 November 2025',
+                    image: 'berita 2.jpg'
+                },
+                {
+                    id: 12,
+                    category: 'Kilas Fakta',
+                    articleType: 'Karya Ilmiah',
+                    title: 'Prestasi Gemilang SMA Nusantara di Ajang FIR (Festival Inovasi Remaja) dan National Seminar: Sabet Juara 1, 2, dan 3 Lomba Karya Tulis Ilmiah',
+                    summary: 'SMA Nusantara meraih prestasi gemilang dengan menyabet juara 1, 2, dan 3 dalam ajang Festival Inovasi Remaja (FIR) 2025 yang dikolaborasikan dengan National Seminar Universitas Negeri Yogyakarta. Tiga tim siswa menorehkan prestasi melalui karya esai, artikel ilmiah, dan gagasan inovatif yang mengangkat isu air bersih, ketahanan pangan, serta pengelolaan sampah berbasis teknologi. Pihak sekolah berharap capaian ini dapat memotivasi siswa lain untuk terus berinovasi dan berani berkompetisi di tingkat nasional.',
+                    author: 'Jihaan Nabiila Layyina',
+                    body: `<p>SMA Nusantara kembali menorehkan prestasi membanggakan di tingkat nasional. Tiga tim terbaik sekolah, berhasil meraih juara 1, 2, dan 3 dalam rangkaian kompetisi FIR (Festival Inovasi Remaja) 2025 yang dikolaborasikan dengan National Seminar yang diselenggarakan oleh Universitas Negeri Yogyakarta (UNY). Ajang ini menjadi wadah bagi pelajar untuk mengekspresikan gagasan kreatif, kemampuan menulis ilmiah, serta inovasi yang berdampak pada masyarakat.</p>
+                    <p>Pada ajang FIR 2025 & National Seminar, tiga tim dari SMA Nusantara berhasil meraih prestasi membanggakan. Tim A, yang beranggotakan Christo Pramesta, Farhan Ramadhan, dan Reno Ardhana dari kelas XI IPA-3, keluar sebagai Juara 1 melalui karya esai berjudul "Teknologi Sederhana untuk Mengurangi Krisis Air di Kawasan Pedesaan." Esai tersebut menawarkan gagasan solusi filtrasi air berbahan murah dan mudah diterapkan masyarakat, sehingga dinilai unggul dari segi relevansi dan inovasi.</p>
+                    <p>Sementara itu, Tim B yang terdiri atas Devano, Rizky, dan Bagas dari kelas XI IPA-1 dan X IPA-2 berhasil meraih Juara 2 melalui artikel ilmiah berjudul "Dampak Urban Farming Terhadap Ketahanan Pangan Keluarga di Perkotaan." Artikel ini menonjol karena didasarkan pada observasi lapangan sederhana dan menyajikan analisis lengkap mengenai peran kebun kecil sebagai solusi pangan keluarga urban.</p>
+                    <p>Adapun Juara 3 diraih oleh Tim C, beranggotakan Aditya Mahendra, Lidia Putri, dan Keisha Putri dari kelas X IPA-2 dan X IPS-1. Mereka mengajukan karya gagasan inovasi berjudul "Smart Waste Box: Kotak Pintar Pemilah Sampah Berbasis Sensor Cahaya," sebuah konsep alat yang mampu mengidentifikasi jenis sampah melalui pantulan cahaya sensorik. Ide kreatif dan dampaknya terhadap edukasi lingkungan membuat karya ini layak mendapatkan posisi tiga besar.</p>
+                    <p>Usai pengumuman kejuaraan, tim jurnalis sekolah berkesempatan mewawancarai perwakilan tim. Keisha Putri dari Tim C mewakili ketiga tim menyampaikan rasa bangganya. Ia mengatakan bahwa kemenangan ini bukan hanya sekadar soal lomba, tetapi tentang tumbuh bersama sebagai tim. "Kami belajar bahwa setiap ide punya tantangan sendiri. Yang penting berani mencoba dan mau memperbaiki," katanya sambil tersenyum. Semuanya berharap pengalaman ini dapat mendorong teman-teman lain di SMA Nusantara untuk ikut aktif menulis, menuangkan gagasan, dan berani tampil dalam ajang nasional.</p>
+                    <p>Wakil Kepala Sekolah Bidang Kurikulum, Bapak Setiawan Adi, M. Pd, juga menyampaikan apresiasi mendalam atas usaha dan pencapaian siswa-siswinya. "Prestasi ini membuktikan bahwa pelajar SMA Nusantara mampu bersaing secara nasional. Yang kami banggakan bukan hanya hasil akhirnya, tetapi proses belajar, keberanian mencoba, dan semangat berinovasi." ujarnya dengan binar bangga.</p>
+                    <p>Guru pembimbing juga menegaskan bahwa keberhasilan ini merupakan hasil kerja kolektif yang panjang, mulai dari diskusi ide, riset sederhana, hingga penyuntingan final karya.</p>
+                    <p>Prestasi berturut-turut ini diharapkan menjadi inspirasi bagi seluruh siswa untuk terus mengembangkan kreativitas, berpikir kritis, serta percaya diri berkontribusi bagi masyarakat melalui tulisan dan inovasi.</p>`,
+                    date: 'Rabu, 26 November 2025 | 10.49 WIB',
+                    image: 'berita 8.jpg'
+                },
+                {
+                    id: 13,
+                    category: 'Kilas Fakta',
+                    articleType: 'Eksperimen Kreatif',
+                    title: 'Siswa SMA Nusantara Kembangkan Proyek Sains Energi Bersih dari Air Bekas Cucian',
+                    summary: 'Siswa SMA Nusantara mengembangkan proyek sains energi bersih dengan memanfaatkan air bekas cucian sebagai sumber listrik sederhana pada kegiatan Science Exploration Day, Jumat (15/11/2025). Proyek berbasis elektrolisis ramah lingkungan ini menarik perhatian warga sekolah dan tamu undangan karena menggunakan bahan sederhana namun aplikatif. Pihak sekolah berencana mengembangkan proyek tersebut dan mendorong siswa mengikuti kompetisi penelitian tingkat provinsi.',
+                    author: 'Ghefira Indah Saraswati',
+                    body: `<p>Siswa SMA Nusantara menarik perhatian warga sekolah setelah mengembangkan proyek sains bertema energi bersih pada kegiatan Science Exploration Day yang digelar di aula sekolah, Jumat (15/11/2025). Dalam proyek tersebut, tim siswa kelas XI berhasil mengolah air bekas cucian (greywater) menjadi sumber energi listrik sederhana menggunakan metode elektrolisis ramah lingkungan.</p>
+                    <p>Proyek itu dimulai dari keresahan siswa melihat banyaknya limbah air rumah tangga yang terbuang begitu saja. Mereka kemudian merancang prototipe sederhana yang memanfaatkan elektroda berbahan karbon untuk menghasilkan arus listrik skala kecil.</p>
+                    <p>Menurut ketua tim, Alya Putri (17), ide tersebut muncul saat mereka mengerjakan tugas penelitian terapan. "Awalnya kami ingin mencari masalah yang dekat dengan kehidupan sehari-hari. Ternyata air bekas cucian itu masih bisa dimanfaatkan, bukan cuma dibuang. Kami menguji beberapa bahan elektroda sampai menemukan kombinasi yang cukup stabil," ujar Alya.</p>
+                    <p>Proyek ini tak hanya menarik perhatian siswa SMA Nusantara, tetapi juga siswa dari sekolah lain yang hadir sebagai tamu undangan. Banyak yang mencoba langsung alat tersebut dan menanyakan cara kerja hingga peluang pengembangannya.</p>
+                    <p>Salah satu siswa tamu, Rafi dari SMA Harapan Jaya, mengaku terinspirasi. "Selama ini saya mengira energi terbarukan selalu membutuhkan alat mahal. Ternyata proyek sederhana seperti ini pun bisa membuka peluang penelitian lanjutan," katanya.</p>
+                    <p>Guru Fisika SMA Nusantara, Ibu Ratih Handayani, menilai bahwa proyek ini berhasil menunjukkan pembelajaran berbasis eksperimen yang kontekstual. "Anak-anak tidak hanya memahami konsep energi dan elektrolisis, tetapi juga membuat solusi yang bisa diuji langsung. Pendekatan seperti ini membuat sains terasa hidup dan relevan," jelasnya.</p>
+                    <p>Pihak sekolah berencana mendorong tim siswa mengikuti kompetisi penelitian tingkat provinsi, sekaligus mengembangkan prototipe tahap kedua agar dapat menghasilkan energi lebih stabil dan efisien.</p>`,
+                    date: 'Kamis, 27 November 2025 | 14.00 WIB',
+                    image: 'berita 11.jpg'
+                },
+                {
+                    id: 14,
+                    category: 'Kilas Fakta',
+                    articleType: 'Karya Sastra',
+                    title: 'Pameran hingga Panggung Hiburan: FESKO 2025 tampilkan Ragam Kreasi Siswa SMA Nusantara',
+                    summary: 'SMA Nusantara sukses menggelar puncak acara FESKO 2025 pada Sabtu, 29 November, sebagai ajang ekspresi seni, kreasi, dan bakat siswa dari kelas X hingga XII. Kegiatan ini menampilkan pameran seni rupa, final lomba puisi, pertunjukan tari dan musik, bazaar, hingga sesi penghargaan yang disambut antusias warga sekolah. Melalui FESKO 2025, sekolah berharap dapat menumbuhkan motivasi, kreativitas, dan kerja sama siswa dalam berkompetisi secara positif.',
+                    author: 'Fitri Cahya Dwi Anggriani',
+                    body: `<p>Suasana penuh semangat dan kreativitas menyelimuti SMA Nusantara dalam puncak acara FESKO 2025 yang digelar pada hari Sabtu (29/11). Pameran hingga panggung hiburan diikuti seluruh siswa SMA Nusantara, mulai dari kelas sepuluh hingga kelas dua belas.</p>
+                    <p>Mengusung tema "Kreasikan  Seni, Tunjukkan dalam Aksi", kegiatan ini menjadi ajang ekspresi seni dan unjuk bakat siswa yang dikemas dalam berbagai pertunjukan dan pameran. Serangkaian kegiatan FESKO 2025 diselenggarakan di lapangan voli terbuka SMA Nusantara. Acara dimulai sejak pukul 06.40 WIB hingga 13.00 WIB. Kegiatan dibuka dengan pameran seni rupa yang digelar di sepanjang pintu masuk panggung hiburan, tepatnya di sepanjang jalan menuju lapangan voli terbuka. Berbagai karya siswa ditampilkan, mulai dari lukisan, wayang, kerajinan tangan, buku, puisi karya siswa  hingga properti sendratari yang menunjukkan kreativitas dalam merancang elemen pendukung pertunjukan panggung.</p>
+                    <p>Di waktu yang sama, panggung hiburan digunakan menjadi lokasi final lomba Harmoni Puisi. Peserta final menampilkan puisi-puisi terbaiknya dengan penuh gairah, penghayatan, dan ekspresi yang kuat. Di samping kanan dan kiri panggung hiburan terdapat sejumlah tenant bazaar makanan, minuman, aksesoris yang turut menyemarakkan suasana FESKO 2025.</p>
+                    <p>Setelah sambutan pembuka dari kepala sekolah SMA Nusantara, panggung FESKO 2025 semakin semarak. Satu per satu hasil kreativitas siswa mulai ditampilkan, mulai dari dance modern, tari tradisional, hingga kolaborasi vokal siswa SMA Nusantara. Semua suguhan tersebut disambut meriah oleh penonton yang memadati area pertunjukan. Sesi awarding juga turut digelar sebagai bentuk apresiasi bagi para juara dari serangkaian lomba yang telah dilaksanakan.</p>
+                    <p>Penampilan Band Sheila On 7 menandai berakhirnya acara FESKO 2025. Sheila On 7 tampil  memeriahkan akhir rangkaian acara dengan suguhan musik yang energik.</p>
+                    <p>"Saya harap kegiatan FESKO 2025 bisa menjadi sebuah penguat motivasi, semangat, dan kerja keras siswa untuk berkarya dan berkompetisi secara positif." Ujar Bambang, salah satu guru SMA Nusantara.</p>
+                    <p>"Karena FESKO 2025 merupakan festival seni, kreasi, dan olahraga, kegiatan ini menjadi wadah bagi siswa untuk mengembangkan minat dan kemampuan mereka, sekaligus meningkatkan kerjasama antar siswa selama berlangsungnya acara." Ungkap Siska Heni dari kelas XI A.</p>`,
+                    date: 'Sabtu, 29 November 2025 | 19:00 WIB',
+                    image: 'berita 6.jpg'
+                },
+                {
+                    id: 15,
+                    category: 'Kilas Fakta',
+                    articleType: 'Karya Ilmiah',
+                    title: 'Pekan Pameran Karya Murid SMA Nusantara Resmi Dibuka, 1.000 Karya Hiasi Aula Sekolah',
+                    summary: 'SMA Nusantara menggelar Pekan Pameran Karya Murid (PPKM) pada 2–5 Desember 2025 di Aula Soedarso sebagai bentuk apresiasi kreativitas siswa sekaligus peringatan Hari Guru Nasional. Sebanyak 1.000 karya seni rupa siswa kelas X dan XII dipamerkan, disertai penampilan musik dari ekstrakurikuler seni. Kegiatan ini menjadi wadah ekspresi murid sekaligus persembahan khusus bagi para guru SMA Nusantara.',
+                    author: 'Figur Angger',
+                    body: `<p>SMA Nusantara menggelar Pekan Pameran Karya Murid (PPKM) sebagai bentuk apresiasi terhadap kreativitas peserta didik sekaligus momentum peringatan Hari Guru Nasional 2025.Kegiatan pameran seni rupa ini berlangsung pada 2–5 Desember 2025 di Aula Soedarso SMA Nusantara.</p>
+                    <p>Pembukaan resmi dilaksanakan pada Selasa, 2 Desember 2025 pukul 09.00 WIB, bertepatan dengan rangkaian peringatan Hari Guru Nasional. Pameran ini disiapkan oleh guru Seni Budaya (Seni Rupa) SMA Nusantara, yaitu Figur Angger.</p>
+                    <p>Menurut Figur, total 1.000 karya seni rupa dari murid kelas X dan XII dipajang memenuhi area aula. Karya-karya tersebut meliputi lukisan di media kardus bekas, nirmana dwimatra, nirmana trimatra, serta karya dari ekstrakurikuler desain grafis dan kriya.</p>
+                    <p>Selain pameran visual, penampilan musik dari tim ekstrakurikuler seni musik turut memeriahkan rangkaian kegiatan. Tujuan dari kegiatan ini adalah memberi wadah bagi murid untuk berekspresi dan berkreasi, sekaligus mengapresiasi progres belajar mereka di bidang seni rupa.</p>
+                    <p>"Sejalan dengan tema Hari Guru Nasional Guru Hebat, Indonesia Kuat, kami ingin menyalurkan minat dan bakat murid melalui pameran ini," ujar Irvan. Guru Seni Rupa lainnya, Saraswati Sukma Prabaningrum atau Ibu Praba, menambahkan bahwa rangkaian karya serta penampilan musik ini menjadi bentuk persembahan murid untuk para guru.</p>
+                    <p>"Seribu karya seni rupa dan penampilan musik dari anak-anak hebat Nusantara adalah kado terindah bagi kami," ungkapnya.</p>
+                    <p>Kepala SMA Nusantara, Rina Kusuma menyampaikan dukungan penuh terhadap penyelenggaraan PPKM tersebut.</p>`,
+                    date: 'Selasa, 2 December  2025',
+                    image: 'berita 3.jpg'
+                },
+                {
+                    id: 16,
+                    category: 'Kilas Fakta',
+                    articleType: 'Karya Ilmiah',
+                    title: 'Ajang Inovasi Siswa: SMA Nusantara Sukses Menggelar Kompetisi Karya Ilmiah Intra-Sekolah "Nusantara Muda"',
+                    summary: 'SMA Nusantara menggelar kompetisi internal "Nusantara Muda" yang diorganisir OSIS sebagai ajang karya tulis ilmiah dan esai untuk menumbuhkan budaya riset, literasi, dan berpikir kritis siswa. Kegiatan ini diawali workshop penulisan dan riset, dilanjutkan seleksi karya bertema Lingkungan & Masyarakat, hingga presentasi final di aula sekolah. Melalui ajang ini, siswa dilatih mengolah gagasan, melakukan riset sederhana, serta menyampaikan ide secara sistematis dan kolaboratif.',
+                    author: 'Jihaan Nabiila Layyina',
+                    body: `<p>SMA Nusantara menggelar kompetisi tahunan "Nusantara Muda", sebuah ajang karya tulis ilmiah dan esai internal yang diorganisir oleh Organisasi Siswa Intra Sekolah (OSIS). Kompetisi ini dirancang untuk mendorong semangat riset, kreativitas, dan daya kritis para siswa tanpa harus menunggu lomba eksternal. Selain itu, kompetisi ini juga dapat dijadikan sebagai wadah bagi seluruh siswa dari kelas X hingga XII untuk menuangkan ide, penelitian sederhana, dan gagasan inovatif dalam bentuk esai, artikel, maupun karya kreatif lainnya.</p>
+                    <p>Kegiatan dimulai dengan pendaftaran online yang dibuka dua minggu sebelum hari-H. Setelah itu, diadakan workshop singkat selama tiga hari berturut-turut, yaitu sesi pendampingan penulisan, cara riset lapangan sederhana, dan etika penulisan ilmiah di ruang perpustakaan. Workshop ini dipandu oleh guru pembimbing dan alumni yang berpengalaman.</p>
+                    <p>Setelah tahap persiapan, seluruh peserta diundang mengikuti seleksi internal: menulis karya (esai, artikel, atau karya kreatif) sesuai tema "Lingkungan & Masyarakat". Kemudian, karya dikumpulkan secara daring sebelum tenggat waktu yang telah ditentukan. Selanjutnya, panitia OSIS bersama dewan juri terdiri dari guru bidang IPA, IPS, serta Bahasa menilai karya berdasarkan orisinalitas, kedalaman gagasan, kelayakan implementasi, dan kualitas penulisan.</p>
+                    <p>Puncak acara diselenggarakan dalam bentuk seminar kecil di aula sekolah, di mana finalis dipanggil untuk mempresentasikan karya mereka di hadapan juri dan teman-teman. Beberapa siswa maju satu per satu membacakan isi esai atau artikel mereka, kemudian menerima tanggapan dan pertanyaan dari juri. Setelah proses penilaian selesai, diumumkanlah pemenang Nusantara Muda 2025 juara 1, 2, dan 3 berhasil diraih oleh tiga tim berbeda dari SMA Nusantara.</p>
+                    <p>Juara 1, 2, dan 3 berhasil diraih oleh tiga kelompok siswa dari SMA Nusantara, atas karya terbaik mereka dalam bentuk esai, artikel, dan gagasan kreatif. Nama tim dan judul karya bisa diumumkan dalam edisi tersendiri.</p>
+                    <p>Menurut kepala OSIS, kegiatan ini digagas tidak sekadar sebagai lomba, tetapi sebagai upaya menumbuhkan budaya literasi, semangat riset, dan kepedulian terhadap isu-isu sosial maupun lingkungan di kalangan siswa. Ia berharap Nusantara Muda dapat menjadi agenda tahunan, sehingga siswa terus terdorong untuk berpikir kritis dan kreatif.</p>
+                    <p>Beberapa guru pembimbing menyampaikan bahwa melalui proses menulis, riset sederhana, dan presentasi, siswa belajar betul bagaimana mengolah ide, mendalami data, dan menyampaikan gagasan secara sistematis keterampilan penting untuk masa depan akademik maupun kehidupan nyata.</p>
+                    <p>Usai pengumuman pemenang, tim jurnalis sekolah mewawancarai salah satu peserta dari tim yang meraih juara 1. "Pada awalnya ide kami hanyalah keprihatinan terhadap sampah plastik di lingkungan rumah," ujar salah satu anggota tim. "Kami lalu menggali informasi dan bacaan, mengobservasi kebiasaan warga sekitar, dan berdiskusi kurang lebih seminggu penuh sampai menemukan solusi yang menurut kami tepat."</p>
+                    <p>Teman satu tim menambahkan bahwa mengikuti Nusantara Muda tidak hanya soal menang atau kalah. "Proses riset, menulis, dan siap dipresentasikan membuat kami sadar arti kerja keras dan kolaborasi," katanya. "Meski sempat stres karena tugas sekolah bersamaan, tenggat lomba memaksa kami mengatur waktu dan belajar disiplin."</p>
+                    <p>Guru pembimbing pun menyampaikan kebanggaannya, "melihat siswa-siswa kita aktif berpikir, merespon isu lingkungan dan sosial, serta mampu menuangkannya ke dalam karya nyata bagi saya ini lebih bernilai daripada predikat juara semata."</p>`,
+                    date: 'Rabu, 3 Desember 2025 | 13.47 WIB',
+                    image: 'berita 9.jpg'
+                },
+                {
+                    id: 17,
+                    category: 'Kilas Fakta',
+                    articleType: 'Karya Seni',
+                    title: 'Kreativitas Tanpa Batas: SMA Nusantara Tampilkan Karya Seni Rupa Siswa',
+                    summary: 'SMA Nusantara menggelar pameran seni rupa di aula sekolah bekerja sama dengan galeri edukasi di Yogyakarta sebagai ajang apresiasi karya siswa. Berbagai karya seperti lukisan, patung, instalasi, dan kerajinan tangan dipamerkan dan terbuka untuk umum secara gratis. Kegiatan ini bertujuan meningkatkan kreativitas, kepercayaan diri, serta pengembangan bakat seni siswa.',
+                    author: 'Figur Angger',
+                    body: `<p>SMA Nusantara menggelar pameran seni rupa sebagai ajang untuk menampilkan karya dan bakat siswa-siswi dalam bidang seni rupa. Kegiatan ini dilaksanakan di aula kerja sama SMA Nusantara dengan salah satu galeri edukasi di Yogyakarta dan dihadiri oleh siswa-siswi, guru-guru, serta tamu undangan.</p>
+                    <p>Dalam pameran ini, siswa-siswi menampilkan berbagai karya seni rupa yang mereka hasilkan sendiri, seperti lukisan, patung, instalasi sederhana, hingga kerajinan tangan. Seluruh karya merupakan hasil proses pembelajaran seni rupa yang telah dilakukan selama beberapa minggu terakhir.</p>
+                    <p>Pameran ini menjadi ruang apresiasi bagi para siswa untuk menunjukkan kreativitas serta meningkatkan rasa percaya diri. Kegiatan ini juga mendorong mereka untuk terus mengembangkan minat dan bakat di bidang seni.</p>
+                    <p>Pameran bersifat terbuka dan dapat dikunjungi oleh masyarakat umum secara gratis. Pengunjung dapat menikmati karya seni yang dipamerkan sekaligus memberikan apresiasi langsung kepada para peserta.</p>
+                    <p>"Kami sangat bangga dengan karya-karya yang ditampilkan oleh siswa-siswi kami," ujar Melati Raudyah Salma, guru seni rupa SMA Nusantara. "Kegiatan ini membuktikan bahwa mereka memiliki kreativitas dan kemampuan yang luar biasa dalam berkarya."</p>
+                    <p>Dengan terselenggaranya pameran ini, SMA Nusantara berharap dapat terus mengembangkan kegiatan edukatif yang bermanfaat bagi siswa-siswi dan menunjang perkembangan potensi mereka.</p>`,
+                    date: 'Jumat, 12 Desember 2025',
+                    image: 'berita 4.jpg'
+                },
+                {
+                    id: 18,
+                    category: 'Ruang Kisah',
+                    articleType: 'Karya Sastra',
+                    title: 'Puisi "Sepatu Usang", Membawanya Sebagai Sang Pemenang',
+                    summary: 'Keterbatasan ekonomi yang melanda, tak pernah meruntuhkan rasa semangat yang berada di dalam diri Arlan. Mimpi-mimpi yang tergantung satu per satu berhasil tercapai. Lewat sepatu usang yang ia kenakan, Arlan berhasil mengubah nasib hidupnya.',
+                    author: 'Fitri Cahya Dwi Anggriani',
+                    body: `<div class="poem-container">
+                        <h3>Puisi "Sepatu Usang", Membawanya Sebagai Sang Pemenang</h3>
+                        <p>Fitri Cahya Dwi Anggriani</p>
+                        <p class="bold-center">Tekad dan Motivasi Membawa Arlan Ghifari Bertemu Kebahagiaan Tak Berujung</p>
+                        <p class="italic">Keterbatasan ekonomi yang melanda, tak pernah meruntuhkan rasa semangat yang berada di dalam diri Arlan. Mimpi-mimpi yang tergantung satu per satu berhasil tercapai. Lewat sepatu usang yang ia kenakan, Arlan berhasil mengubah nasib hidupnya.</p>
+                        <p>Sukses meraih juara satu lomba puisi tingkat nasional, Arlan berhasil mendapatkan beasiswa S1 di Universitas Negeri Malang. Keteguhan dan semangat yang tinggi membawa Arlan meraih salah satu cita-citanya, yaitu bisa menempuh pendidikan di perguruan tinggi. Terlahir dari keluarga dengan keterbatasan ekonomi, Arlan tak sedikitpun menyerah dengan nasibnya. Ayah dengan pekerjaannya sebagai tukang becak dan ibu yang setiap harinya berjualan gorengan, selalu berada di belakang Arlan untuk memberi dorongan dan motivasi kuat dalam menempuh pendidikan.</p>
+                        <p>Arlan Ghifari biasa disapa akrab sebagai Arlan, merupakan seorang siswa kelas XII SMA Nusantara yang dikenal pendiam, namun ceria. Teman sekelasnya menilai Arlan sebagai pribadi yang pintar, teguh pendirian, disiplin, dan selalu bersemangat. Di balik sikap tenangnya, Arlan memiliki ketertarikan dalam dunia sastra khususnya puisi berhasil memotivasi Arlan untuk menciptakan puisi-puisi indah tentang hidupnya. Setiap pulang sekolah, Arlan sering menghabiskan waktu menulis bait-bait puisi di buku lusuh yang selalu ia bawa. Dari sanalah lahir puisi-puisi yang menjadi cerminan perjalanan hidupnya. Ketertarikannya pada sastra bukan hanya hobi semata, tetapi telah menjadi cara Arlan memahami kehidupan dan menyuarakan isi hatinya. Semangat itulah yang mendorong Arlan menciptakan puisi-puisi indah yang akhirnya membawanya pada berbagai prestasi.</p>
+                        <p>Perjalanan Arlan meraih juara satu lomba puisi tingkat nasional bermula dari sepatu usang yang selalu ia kenakan saat pergi ke sekolah. Menempuh perjalanan jauh ke sekolah dengan berjalan kaki dan memakai sepatu yang sudah tak layak pakai telah menjadi hal biasa. Sepatu itu sudah terlalu sering menemani perjalanan jauh setiap pagi melewati jalan berbatu, genangan air, hingga debu yang tak terhitung. Solnya mulai tipis, warnanya memudar, dan pinggirannya mulai robek. Baginya, sepatu itu bukan sekadar alas kaki, tetapi simbol perjalanan panjang yang harus ia tempuh demi masa depan yang lebih baik. Setiap langkah yang ia ambil dengan sepatu itu mengingatkannya pada cita-cita besar yang menunggu untuk diperjuangkan.</p>
+                        <p>Sepulang sekolah Arlan tidak pernah bermain dengan teman sebayanya karena ia harus membantu ibunya berjualan gorengan. Sempat mendapat ejekan dari teman sekolahnya lantaran kondisi ekonominya. Namun, segala bentuk hinaan itu tidak pernah membuat Arlan patah semangat. Justru ejekan tersebut menjadi pemicu bagi Arlan untuk membuktikan bahwa keadaan tidak menentukan masa depan seseorang. Baginya, apa pun akan ia lakukan demi cita-cita dan keinginannya tercapai.</p>
+                        <p>Dalam kesibukannya, ia tetap menyempatkan waktu untuk menulis puisi, meski hanya beberapa baris. Ia sering menulis di sela-sela waktu menjaga dagangan atau pada malam hari ketika semua orang sudah tertidur. Dari kebiasaan inilah lahir puisi "Sepatu Usang", sebuah puisi yang kemudian mengubah hidupnya. Puisi tersebut menceritakan perjalanan harian Arlan, rasa malu yang pernah ia rasakan, dan kekuatan yang ia dapatkan dari sepasang sepatu usang yang tampak tidak berharga bagi orang lain, tetapi memiliki makna mendalam baginya.</p>
+                        <p>Ketika lomba puisi tingkat nasional diumumkan, Arlan sebenarnya tidak terlalu percaya diri untuk ikut. Ia merasa puisi-puisinya terlalu sederhana dan tidak seberapa dibandingkan karya peserta dari kota besar. Namun dorongan dari guru Bahasa Indonesianya membuat Arlan memberanikan diri mengirimkan puisinya. Tanpa diduga, puisinya lolos seleksi tahap awal. Arlan sempat tertegun ketika mengetahui namanya masuk dalam daftar finalis. Hari demi hari, ia berlatih membaca puisi dengan penuh penghayatan, membayangkan sepatu-sepatu usang dalam memorinya, seolah ia mengulang kembali perjalanan masa kecilnya. Pada saat perlombaan, suaranya sempat bergetar, namun ia berhasil menuntaskan penampilannya dengan penuh emosi. Sorak penonton mengiringi akhir pembacaannya.</p>
+                        <p>Kemenangan Arlan bukan hanya menjadi hadiah atas kerja kerasnya, tetapi juga titik balik dalam hidupnya. Beasiswa yang ia dapatkan kini menjadi pintu gerbang bagi masa depan lebih baik yang selalu ia impikan. Arlan membuktikan bahwa keterbatasan bukan alasan untuk berhenti bermimpi. Dengan usaha, doa, dan keberanian untuk melangkah, hal yang tampak mustahil pun bisa menjadi mungkin.</p>
+                    </div>`,
+                    date: 'Senin, 24 November 2025',
+                    image: 'features 1.jpg'
+                },
+                {
+                    id: 19,
+                    category: 'Ruang Kisah',
+                    articleType: 'Karya Ilmiah',
+                    title: 'Melampaui Batas: Kisah Aira, Siswi Berkebutuhan Khusus yang Menembus Panggung Karya Ilmiah',
+                    summary: 'Keterbatasan penglihatan yang ia miliki tak pernah memadamkan semangat belajar dalam diri Aira. Dengan ketekunan yang tidak pernah goyah, ia merangkai gagasan hingga menjadi karya ilmiah yang menginspirasi banyak orang. Dari layar yang diperbesar hingga suara pembaca teks yang membimbingnya, Aira membuktikan bahwa keterbatasan bukanlah penghalang untuk meraih prestasi tertinggi.',
+                    author: 'Jihaan Nabiila Layyina',
+                    body: `<div class="poem-container">
+                        <h3>Melampaui Batas: Kisah Aira, Siswi Berkebutuhan Khusus yang Menembus Panggung Karya Ilmiah</h3>
+                        <p>Jihaan Nabiila Layyina</p>
+                        <p class="bold-center">Semangat dan Inklusivitas Mengantarkan Aira Rahmadani pada Panggung Karya Ilmiah</p>
+                        <p class="italic">Keterbatasan penglihatan yang ia miliki tak pernah memadamkan semangat belajar dalam diri Aira. Dengan ketekunan yang tidak pernah goyah, ia merangkai gagasan hingga menjadi karya ilmiah yang menginspirasi banyak orang. Dari layar yang diperbesar hingga suara pembaca teks yang membimbingnya, Aira membuktikan bahwa keterbatasan bukanlah penghalang untuk meraih prestasi tertinggi.</p>
+                        <p>Di tengah riuh dinamika sekolah menengah yang penuh kompetisi, sosok Aira Rahmadani, siswi kelas XI SMA Nusantara, sering tampak duduk di sudut perpustakaan dengan buku dan laptopnya. Sepintas tidak ada yang aneh dan berbeda, namun Aira adalah siswi dengan gangguan penglihatan parsial sejak lahir. Dalam kesehariannya ia harus memperbesar huruf layar hingga 250% dan memakai bantuan kacamata berlensa tebal untuk dapat membaca teks. Meski demikian, keterbatasan itu tidak menghalanginya untuk menyalurkan rasa ingin tahu yang besar terhadap fenomena sosial dan lingkungan di sekitarnya.</p>
+                        <p>Aira tumbuh dengan kegemaran membaca buku dan artikel-artikel sains populer. "Kadang capek banget karena hurufnya harus dibesarkan, mataku juga lelah kalau harus pakai kacamata terus, berat. Tapi kalau sudah penasaran, ya dikejar sampai paham," tuturnya sambil tersenyum. Ketekunan itu membawanya menemukan hal yang ia sebut "kesenangan baru", yaitu menulis esai ilmiah. Bagi Aira, menulis bukan sekadar tugas sekolah tetapi cara untuk membuktikan bahwa keterbatasan fisik tidak bisa membatasi ruang pikir manusia.</p>
+                        <p>Pada awal 2025, OSIS SMA Nusantara mengadakan lomba esai ilmiah bertajuk "Nalar Muda Nusantara". Lomba ini dirancang untuk menumbuhkan budaya literasi dan penelitian sederhana di kalangan pelajar. Meski sempat ragu, Aira memberanikan diri mengikuti kompetisi tersebut. Ia menulis artikel berjudul "Cahaya di Balik Layar: Peran Teknologi Bagi Pelajar Berkebutuhan Khusus", sebuah kajian ringkas namun tajam mengenai bagaimana perangkat digital dapat membantu inklusivitas pendidikan.</p>
+                        <p>Dalam proses penyusunan esai, ia bekerja dengan metode sederhana, dengan mengumpulkan data melalui wawancara daring, membaca jurnal dengan fitur text-to-speech, hingga menuliskan gagasan penting dalam poin-poin besar sebelum merangkainnya menjadi paragraf. "Kalau mataku mulai lelah, aku pakai pembaca layar. Kadang suaranya cepat banget, tapi lama-lama terbiasa," ujarnya.</p>
+                        <p>Hasil kerja keras itu membawanya menjadi juara pertama. Dewan juri menilai tulisannya bukan hanya kuat dari sisi argumentasi, tetapi juga menyuguhkan perspektif yang jarang diangkat oleh penulis sebaya. Esai Aira dianggap mampu menggabungkan pengalaman personal, analisis ilmiah, dan ajakan moral untuk membangun lingkungan belajar yang inklusif.</p>
+                        <p>Bagi Aira, kemenangan itu bukan akhir, tetapi awal perjalanan baru. Ia kini menjadi inspirasi bagi banyak siswa di SMA Nusantara. Beberapa teman yang awalnya enggan menulis mulai ikut belajar menyusun artikel karena melihat perjuangannya. "Aku ingin teman-teman dan  adik-adik kelas tahu, keterbatasan bukan alasan untuk berhenti berkarya. Justru dari keterbatasan itu, kita bisa menemukan kekuatan yang orang lain tidak punya.</p>
+                        <p>Guru pembina literasi, Ibu Ratih, menilai Aira sebagai contoh nyata semangat merdeka belajar. "Ia membuktikan bahwa setiap siswa punya potensi. Tugas sekolah adalah menyediakan ruang dan dukungan agar mereka bisa tumbuh," ungkapnya.</p>
+                        <p>Kini Aira tengah mempersiapkan karya ilmiah berikutnya untuk kompetisi tingkat nasional. Ketika ditanya apa mimpinya, ia menjawab sederhana, "Aku ingin menulis lebih banyak, supaya orang tahu bahwa inklusi itu bukan teori tapi cerita nyata di sekolah kita."</p>
+                        <p>Kisah Aira menunjukkan bahwa inovasi, keberanian, dan kemauan belajar dapat melampaui batas fisik apa pun. Di balik keterbatasannya, ia justru menghadirkan cahaya baru bagi dunia literasi remaja.</p>
+                    </div>`,
+                    date: 'Selasa, 25 November 2025',
+                    image: 'features 2.jpg'
+                },
+                {
+                    id: 20,
+                    category: 'Ruang Kisah',
+                    articleType: 'Karya Sastra',
+                    title: 'Menjahit Cahaya Di Tengah Luka: Berawal dari Trauma Kini Hidup Lebih Bermakna',
+                    summary: 'Di balik senyum tipis yang kerap ia tunjukkan, Bella Nuraini menyimpan kisah yang jauh dari kata mudah. Remaja kelas XI SMA Nusantara itu pernah melewati hari-hari penuh bayang-bayang kelam: dirundung, diremehkan, bahkan diabaikan oleh orang-orang yang seharusnya menjadi tempatnya pulang. Namun dari ruang gelap itulah, ia perlahan menjahit cahaya, membangun kembali harga diri, merawat mimpi, hingga akhirnya berdiri tegak sebagai siswa berprestasi yang namanya kini diperhitungkan.',
+                    author: 'Fitri Cahya Dwi Anggriani',
+                    body: `<div class="poem-container">
+                        <h3>Menjahit Cahaya Di Tengah Luka: Berawal dari Trauma Kini Hidup Lebih Bermakna</h3>
+                        <p>Fitri Cahya Dwi Anggriani</p>
+                        <p class="bold-center">Ketekunan, Kekuatan, dan Kesabaran Membawa Bella Nuraini Menuju Keemasan</p>
+                        <p class="italic">Di balik senyum tipis yang kerap ia tunjukkan, Bella Nuraini menyimpan kisah yang jauh dari kata mudah. Remaja kelas XI SMA Nusantara itu pernah melewati hari-hari penuh bayang-bayang kelam: dirundung, diremehkan, bahkan diabaikan oleh orang-orang yang seharusnya menjadi tempatnya pulang. Namun dari ruang gelap itulah, ia perlahan menjahit cahaya, membangun kembali harga diri, merawat mimpi, hingga akhirnya berdiri tegak sebagai siswa berprestasi yang namanya kini diperhitungkan.</p>
+                        <p>Di sudut ruang perpustakaan yang lengang, Bella Nuraini duduk sambil merapikan map berisi sertifikat yang warnanya sudah mulai pudar. Ada lebih dari dua puluh lembar didalamnya, hasil kerja keras yang tidak banyak orang tahu lahir dari perjalanan panjang penuh luka, keraguan, dan perjuangan.</p>
+                        <p>Bagi sebagian teman sekolahnya, Bella adalah sosok "siswa berprestasi" yang kerap naik ke panggung untuk menerima penghargaan. Namun di balik senyuman yang selalu ia bawa ke sekolah, tersimpan kisah yang jauh lebih berat daripada yang terlihat.</p>
+                        <p>Sebelum dikenal sebagai siswa berprestasi, Bella pernah melalui masa-masa yang hampir membuatnya menyerah pada sekolah, bahkan pada dirinya sendiri. Ia pernah dirundung oleh teman sekelasnya selama lebih dari setahun. Ucapan-ucapan yang meremehkan menjadi makanan sehari-hari.</p>
+                        <p>"Dulu aku sering dibilang nggak bisa apa-apa. Katanya aku cuma mimpi kalau mau ikut lomba," kenang Bella pelan.</p>
+                        <p>Luka itu semakin dalam ketika keraguan justru datang dari rumah. Orang tua yang sibuk bekerja sering meremehkan minat Bella di bidang akademik dan literasi.</p>
+                        <p>"Mereka bilang sekolah itu yang penting lulus. Aku nggak perlu terlalu bermimpi. Padahal justru di saat itu aku lagi butuh dipercaya," ucapnya.</p>
+                        <p>Bella mengaku sempat kehilangan kepercayaan diri. Setiap pagi ia berangkat sekolah dengan dada sesak, takut menghadapi komentar teman-temannya. Namun ia tetap datang, seolah ada harapan kecil yang menolak padam.</p>
+                        <p>Titik balik Bella datang di kelas X, ketika seorang guru Bahasa Indonesia, Bu Raras, melihat nilai esai Bella yang berbeda. Ada imajinasi, kepekaan, dan kejujuran yang tidak ia temukan di tulisan siswa lain.</p>
+                        <p>"Waktu itu, Bu Raras bilang tulisanku punya nyawa. Itu pertama kalinya ada orang dewasa yang percaya aku bisa," kata Bella dengan senyum yang perlahan terbentuk.</p>
+                        <p>Dari sanalah pintu-pintu kesempatan mulai terbuka. Bella mulai aktif membaca, ikut komunitas literasi sekolah, hingga berlatih menulis hampir setiap malam. Di tengah keterbatasan waktu dan suasana rumah yang tidak selalu mendukung, Bella justru semakin kuat.</p>
+                        <p>Kini, ia telah meraih berbagai penghargaan diantaranya, Juara 1 Lomba Cerpen Tingkat Kabupaten, Finalis Esai Remaja se-Provinsi, Juara 2 Lomba Poster Literasi SMA Nusantara, dan Peraih Penghargaan Siswa Berprestasi Bidang Bahasa 2025. Namun bagi Bella, prestasi bukan sekadar piala. Itu adalah bukti bahwa ia bisa mengubah takdirinya sendiri.</p>
+                        <p>"Aku ingin buktiin bahwa kata-kata buruk bukan akhir dari hidup. Kalau kita terus jalan, pasti ada cahaya," ujarnya.</p>
+                        <p>Jika dulu Bella sering menghindari berinteraksi karena trauma, kini ia justru menjadi bagian dari tim konseling siswa. Ia kerap membantu adik kelas yang mengalami hal serupa. "Aku nggak mau ada yang merasa sendirian kayak dulu. Kalau bisa, aku ingin jadi teman yang dulu aku cari," katanya.</p>
+                        <p>Teman-teman yang dulu meremehkannya pun kini mulai menghargainnya. Beberapa bahkan meminta bantuan Bella untuk belajar menulis. Ketika ditanya apakah ia memaafkan masa lalu, Bella mengangguk. "Aku nggak mau marah sama mereka. Tanpa itu semua, aku mungkin nggak jadi aku yang sekarang." Di SMA Nusantara, Bella kini dikenal bukan hanya sebagai siswa berprestasi, tetapi juga simbol keteguhan hati.</p>
+                    </div>`,
+                    date: 'Jumat, 28 November 2025',
+                    image: 'features 3.jpg'
+                },
+                {
+                    id: 21,
+                    category: 'Ruang Kisah',
+                    articleType: 'Eksperimen Kreatif',
+                    title: 'Dari Ide Menuju Prestasi: Meraih Panggung Kanca Internasional',
+                    summary: 'Tidak banyak yang tahu bahwa dibalik wajah ceria Aurelina Putri, siswi kelas XI SMA Nusantara, tersimpan kisah panjang tentang keteguhan hati. Sebagai penerima beasiswa prestasi tahun ini, Aurel berdiri bukan karena keberuntungan, tetapi karena perjalanan yang penuh perjuangan, kegagalan, dan keberanian untuk terus melangkah.',
+                    author: 'Ghefira Indah Saraswati',
+                    body: `<div class="poem-container">
+                        <h3>Dari Ide Menuju Prestasi: Meraih Panggung Kanca Internasional</h3>
+                        <p>Ghefira Indah Saraswati</p>
+                        <p class="bold-center">Harapan dan Perjuangan membawa Aurelina Putri melihat dunia</p>
+                        <p class="italic">Tidak banyak yang tahu bahwa dibalik wajah ceria Aurelina Putri, siswi kelas XI SMA Nusantara, tersimpan kisah panjang tentang keteguhan hati. Sebagai penerima beasiswa prestasi tahun ini, Aurel berdiri bukan karena keberuntungan, tetapi karena perjalanan yang penuh perjuangan, kegagalan, dan keberanian untuk terus melangkah.</p>
+                        <p>Di pinggir kota kecil, Aurel tumbuh di keluarga sederhana. Ayahnya bekerja serabutan, sedangkan ibunya membuka jasa menjahit kecil-kecilan di rumah. Penghasilan keluarga naik turun, terkadang cukup, terkadang hanya pas untuk kebutuhan harian. Namun, dari lingkungan itulah Aurel belajar untuk menghargai setiap proses.</p>
+                        <p>Sejak SMP, ia terbiasa membantu ibunya menjahit kancing atau memotong pola kain sepulang sekolah. Ada hari-hari ketika ia harus belajar ditemani suara mesin jahit yang berdengung sepanjang malam. Meski begitu, ia jarang mengeluh. Justru di ruang kecil itulah Aurel menemukan tekad untuk mengubah masa depannya lewat pendidikan.</p>
+                        <p>Awal masuk SMA Nusantara bukanlah perjalanan mulus. Materi pelajaran terasa jauh lebih sulit, dan Aurel pernah beberapa kali mendapatkan nilai rendah. Ia bahkan sempat merasa tidak pantas bersaing dengan teman-teman lain yang terlihat jauh lebih siap. Namun Aurelina mengerti, kegagalan adalah guru terbaik dalam hidup.</p>
+                        <p>Sejak hari itu, Aurel membuat kebiasaan baru: datang ke sekolah lebih pagi untuk membaca, mencatat ulang materi sebelum pelajaran dimulai, dan melatih soal-soal hingga larut malam. Ada hari ketika ia merasa sangat lelah, ada hari ketika ia ingin menyerah, tetapi ia tetap melangkah.</p>
+                        <p>Perjuangannya mulai terlihat ketika ia memenangkan lomba esai tingkat kabupaten. Ia menulis tentang keberanian anak muda dalam menjaga lingkungan, terinspirasi dari keseharian keluarganya yang hidup sederhana. Kemenangannya bukan hanya trofi, tetapi juga kepercayaan diri yang selama ini ia cari.</p>
+                        <p>Tak berhenti di sana. Aurel kemudian menjadi finalis lomba pidato, juara 2 karya tulis ilmiah, dan beberapa kali menjadi perwakilan sekolah dalam seminar pelajar. Setiap pencapaian kecil menjadi tangga yang membawanya ke tahap berikutnya.</p>
+                        <p>Pada semester satu kelas XII, Aurel terpilih sebagai penerima beasiswa luar negeri. Saat itu, air matanya jatuh tanpa bisa ia tahan. Bukan karena beasiswanya, tetapi karena perjuangan panjangnya akhirnya diakui. Ia teringat pada malam-malam belajar di antara suara mesin jahit, tumpukan tugas yang membuatnya menangis, hingga momen ketika ia nyaris menyerah. Beasiswa itu menjadi simbol bahwa kerja kerasnya tidak sia-sia.</p>
+                        <p>Kini, Aurel terus menjadi pribadi yang membumi. Ia tetap membantu ibunya, tetap belajar lebih awal, dan tetap membagi waktu untuk mendukung teman-temannya. Ia percaya bahwa prestasi bukan hanya tentang menjadi yang terbaik, tetapi tentang terus bertumbuh dan memberi manfaat bagi orang lain.</p>
+                        <p>Bagi SMA Nusantara, Aurel adalah contoh nyata bahwa kesempatan besar dapat lahir dari ketekunan kecil yang dilakukan setiap hari. Dan bagi banyak siswa, ia menjadi pengingat bahwa setiap perjuangan, seberat apa pun, selalu punya jalan menuju cahaya.</p>
+                    </div>`,
+                    date: 'Senin, 1 Desember 2025',
+                    image: 'features 4.jpg'
+                },
+                {
+                    id: 22,
+                    category: 'Perspektif',
+                    articleType: 'Eksperimen Kreatif',
+                    title: 'Belajar Sains Lewat Limbah: Mengapresiasi Kreativitas Siswa SMA Nusantara',
+                    summary: 'Limbah kantin sering dipandang sebagai sisa tak berguna, padahal di tangan siswa SMA Nusantara, ia berubah menjadi solusi lingkungan yang nyata. Proyek pengolahan kulit buah menjadi pupuk organik cair ini menunjukkan bahwa pendidikan sains tidak seharusnya berhenti di buku teks. Menurut saya, dari sinilah pembelajaran bermakna dimulai ketika teori bertemu kepedulian dan praktik nyata.',
+                    author: 'Ghefira Indah Saraswati',
+                    body: `<p>Limbah kantin sering dianggap remeh sebenarnya memiliki potensi besar yang sering terlewatkan. Proyek siswa SMA Nusantara yang mengubah kulit buah menjadi pupuk organik cair membuktikan bahwa kreativitas remaja bisa diterjemahkan menjadi solusi nyata untuk masalah lingkungan sehari-hari. Saya yakin inisiatif seperti ini lebih dari sekadar eksperimen; ini adalah contoh nyata bagaimana pendidikan sains seharusnya mendorong penerapan praktis, bukan sekadar teori di buku.</p>
+                    <p>Proses fermentasi yang dilakukan siswa menunjukkan kedisiplinan ilmiah dan ketekunan luar biasa. Pemantauan pH, warna, bau, dan kadar endapan secara rutin bukan hanya menambah pemahaman biologis, tetapi juga melatih kesabaran dan ketelitian, kompetensi yang jarang diasah di kelas konvensional. Saya percaya bahwa pengalaman seperti ini lebih efektif menumbuhkan pemahaman mendalam daripada belajar konsep secara abstrak.</p>
+                    <p>Proyek ini juga menekankan pentingnya inovasi yang berkelanjutan. Limbah kulit buah yang sebelumnya dibuang menjadi sumber pupuk yang bermanfaat, menunjukkan bahwa masalah sehari-hari bisa diubah menjadi peluang jika siswa diajarkan berpikir kreatif dan kritis. Menurut saya, hal semacam ini membangun kesadaran ekologis yang tidak dapat diajarkan hanya melalui buku atau ceramah.</p>
+                    <p>Lebih jauh, proyek ini dapat memberi ruang bagi siswa untuk bereksperimen adalah kunci pendidikan modern. Ketika mereka diberi kebebasan untuk mencoba, gagal, dan menyesuaikan metode, menurut saya, mereka belajar tanggung jawab, kepemimpinan, dan empati terhadap lingkungan. Proyek ini memperlihatkan bahwa sains yang dipraktikkan dengan kepedulian sosial mampu mencetak pengetahuan sekaligus karakter.</p>
+                    <p>Keberhasilan proyek SMA Nusantara menunjukkan bahwa pendidikan sains yang berpijak pada praktik nyata dan masalah lingkungan sehari-hari jauh lebih efektif daripada pembelajaran teori murni. Inisiatif sederhana seperti mengubah limbah kantin menjadi pupuk organik bukan hanya mengajarkan biologi, tetapi juga menanamkan nilai keberlanjutan, kreativitas, dan empati. Saya percaya, model pembelajaran seperti ini seharusnya menjadi inspirasi bagi sekolah lain yang ingin mendidik generasi yang cerdas sekaligus peduli lingkungan.</p>`,
+                    date: 'Kamis, 04 Desember 2025 | 14.53 WIB',
+                    image: 'opini 1.jpg'
+                },
+                {
+                    id: 23,
+                    category: 'Perspektif',
+                    articleType: 'Eksperimen Kreatif',
+                    title: 'Inovasi Remaja untuk Kebersihan Sekolah: Smart Bin sebagai Contoh Nyata',
+                    summary: 'Banyak proyek teknologi sekolah berhenti sebagai pajangan, tetapi Smart Bin karya siswa SMA Nusantara justru hadir sebagai solusi nyata di lingkungan mereka sendiri. Inovasi ini membuktikan bahwa teknologi tidak harus rumit atau mahal untuk memberi dampak sosial. Dari sinilah terlihat bahwa pendidikan teknologi seharusnya mengajarkan kepedulian, bukan sekadar keterampilan teknis.',
+                    author: 'Ghefira Indah Saraswati',
+                    body: `<p>Inovasi teknologi di sekolah seringkali dianggap sekadar proyek tambahan, namun menurut saya, apa yang dilakukan siswa SMA Nusantara dengan Smart Bin membuktikan sebaliknya. Mereka tidak hanya merakit alat berbasis sensor, tetapi juga menghadirkan solusi nyata bagi masalah higienitas di sekolah. Proyek ini menunjukkan bahwa teknologi dapat dipadukan dengan kepedulian sosial sejak usia remaja, menciptakan dampak yang nyata bagi lingkungan sekitar.</p>
+                    <p>Proses trial and error yang dilalui siswa dari penyetelan sensor hingga pengujian prototipe adalah bagian penting dari pembelajaran. Ini mengajarkan bahwa inovasi bukan sekadar mengikuti instruksi, tetapi memahami masalah, mencoba berbagai alternatif, dan menyesuaikan diri dengan kondisi nyata. Saya percaya pengalaman seperti ini lebih berharga daripada sekadar mempelajari teori coding atau elektronika di kelas.</p>
+                    <p>Smart Bin memperlihatkan bagaimana kreativitas dan keterampilan teknologi dapat diterapkan untuk meningkatkan kualitas hidup sehari-hari. Dengan memanfaatkan Arduino, sensor ultrasonik, dan bahan bekas laboratorium, siswa juga menunjukkan bahwa keterbatasan sumber daya bukan hambatan untuk berinovasi. Hal ini menegaskan bahwa pendidikan teknologi yang efektif adalah pendidikan yang menekankan aplikasi nyata dan pemecahan masalah.</p>
+                    <p>Lebih jauh, menurut saya, proyek ini menekankan pentingnya inovasi yang berorientasi pada masyarakat. Ketika siswa memikirkan kenyamanan dan higienitas pengguna, mereka tidak hanya belajar membuat alat, tetapi juga belajar empati dan tanggung jawab sosial. Inisiatif ini, menurut saya, seharusnya menjadi model bagi sekolah lain yang ingin mengintegrasikan teknologi dengan pendidikan karakter dan kesadaran sosial.</p>
+                    <p>Smart Bin di SMA Nusantara bukan sekadar proyek TIK, melainkan contoh bagaimana siswa dapat belajar, berinovasi, dan memberi kontribusi positif secara bersamaan. Saya percaya, dengan memberikan ruang bagi kreativitas dan eksperimen nyata, pendidikan dapat mencetak generasi yang tidak hanya cerdas secara teknologi, tetapi juga peduli terhadap lingkungan dan sesama.</p>`,
+                    date: 'Kamis, 10 Desember 2025 | 15.05 WIB',
+                    image: 'opini 2.jpg'
+                },
+                {
+                    id: 24,
+                    category: 'Perspektif',
+                    articleType: 'Karya Sastra',
+                    title: 'Melukis, Pelarian Sunyi yang Menenangkan Pikiran',
+                    summary: 'Di tengah rutinitas yang semakin padat, banyak orang mencari cara sederhana untuk meredakan stres tanpa biaya besar atau perjalanan jauh. Salah satu cara yang kini kembali diminati adalah melukis, aktivitas yang memberi ruang hening bagi pikiran untuk beristirahat dan menata ulang diri. Melukis bukan sekadar seni. Ia adalah terapi sunyi yang membuat pikiran kembali utuh.',
+                    author: 'Fitri Cahya Dwi Anggriani',
+                    body: `<p>Di tengah rutinitas yang kian padat, banyak orang mulai mencari cara untuk meredakan stres. Salah satu obat pereda stres tanpa harus bepergian jauh atau perjalanan jauh. Salah satu cara yang kini kembali diminati adalah melukis, aktivitas yang memberi ruang hening bagi pikiran untuk beristirahat dan menata ulang diri. Melukis bukan sekadar seni. Ia adalah terapi sunyi yang membuat pikiran kembali utuh.</p>
+                    <p>Sejumlah psikolog menyebutkan bahwa aktivitas yang melibatkan fokus, warna, dan gerak tangan dapat membantu menurunkan tingkat kecemasan. Ketika seseorang melukis, otak diarahkan pada satu titik konsentrasi sehingga meminimalkan pikiran-pikiran liar yang biasanya memicu stres. Proses ini serupa dengan meditasi yang dilakukan dengan pelan, tenang, dan memberi ruang bagi diri sendiri untuk bernapas.</p>
+                    <p>Tak sedikit siswa yang merasakan manfaat tersebut. Di beberapa ekstrakurikuler seni dan komunitas kreatif sekolah, sesi art therapy mendadak menjadi kegiatan favorit. Pesertanya beragam, mulai dari siswa yang kewalahan menghadapi tugas harian hingga yang merasa jenuh dengan tekanan ujian. Mereka mengaku bahwa melukis membuat kepala terasa lebih ringan, seakan ada beban yang ikut keluar.</p>
+                    <p>Di tengah benturan tugas-tugas yang penuh tuntutan, melukis menjadi pengingat bahwa siswa juga butuh jeda. Butuh momen untuk kembali pada diri sendiri tanpa tugas, tanpa tekanan nilai, dan tanpa keharusan untuk selalu sempurna. Bahkan dalam keheningan paling sederhana, selembar kertas gambar dan beberapa warna sudah cukup menjadi "tempat pulang" yang menenangkan bagi siswa yang kepalanya dipenuhi rutinitas belajar.</p>
+                    <p>Di era yang serba cepat ini, melukis menjadi pengingat bahwa manusia butuh jeda. Butuh momen untuk kembali pada diri sendiri tanpa tuntutan apa pun. Bahkan dalam keheningan paling sederhana, sebuah kanvas dan sedikit warna bisa menjadi tempat pulang yang menenangkan pikiran yang menenangkan pikiran.</p>
+                    <p>Di era yang serba cepat ini, melukis menjadi pengingat bahwa manusia butuh jeda. Butuh momen untuk kembali pada diri sendiri tanpa tuntutan apa pun. Bahkan dalam keheningan paling sederhana, sebuah kanvas dan sedikit warna bisa menjadi tempat pulang yang menenangkan pikiran. Melukis bukan sekadar seni. Ia adalah terapi sunyi yang membuat pikiran kembali utuh.</p>`,
+                    date: 'Senin, 8 Desember 2025 | 18.43 WIB',
+                    image: 'opini 3.jpg'
+                },
+                {
+                    id: 25,
+                    category: 'Perspektif',
+                    articleType: 'Eksperimen Kreatif',
+                    title: 'Inovasi Pengolahan Sampah Plastik oleh Siswa SMA Nusantara',
+                    summary: 'Dua siswi SMA Nusantara, Michelle Wijaya dan Jennifer Grace, berhasil mengolah sampah plastik menjadi berbagai jenis bahan bakar minyak minyak melalui riset pirolisis yang mereka kembangkan selama satu tahun. Berangkat dari keprihatinan terhadap masalah sampah, inovasi ini menunjukkan bahwa limbah plastik masih memiliki potensi ekonomi dan lingkungan jika dikelola dengan tepat. Upaya mereka menjadi bukti bahwa kepedulian dan ketekunan siswa mampu melahirkan solusi nyata dari ruang kelas sederhana.',
+                    author: 'Ghefira Indah Saraswati',
+                    body: `<p>Dua siswa SMA Nusantara berhasil mengubah sampah plastik yang selama ini tak bernilai menjadi berbagai jenis bahan bakar minyak (BBM), mulai dari solar, minyak tanah, hingga bahan bakar sejenis Pertalite. Inovasi ini lahir dari keprihatinan mereka terhadap persoalan sampah yang tak kunjung selesai di lingkungan sekitar.</p>
+                    <p>Michelle Wijaya dan Jennifer Grace, menjadi motor di balik riset pengolahan sampah plastik menggunakan metode pirolisis. Penelitian yang mereka lakukan selama satu tahun dimulai ketika Michelle dan Jennifer masih duduk di kelas X. Dari proses inilah Michelle dan Jennifer menemukan bahwa limbah plastik sebenarnya bisa dikelola secara lebih ekonomis dan ramah lingkungan melalui proses pemanasan tanpa oksigen.</p>
+                    <p>Dalam proses riset, Michelle dan Jennifer harus memilah sampah sampah plastik yang layak diolah, memotongnya, hingga menguji pengaruh ketebalan plastik terhadap hasil pirolisis. Ia bahkan mencoba menambahkan kulit telur sebagai bahan pendukung. Sampah kemudian diproses di tabung reaktor berkapasitas lima kilogram dengan suhu lebih dari 300 derajat celsius selama dua hingga empat jam. Dari proses tersebut, Michelle dan Jennifer mampu menghasilkan solar, minyak tanah, dan sedikit pertalite meski jumlahnya masih terbatas.</p>
+                    <p>Tantangan terbesar yang dihadapi adalah pengaturan suhu dan kualitas bahan bakar yang dihasilkan, karena masih diperlukan proses pembersihan agar aman digunakan. Karya ini juga pernah diikutkan dalam Olimpiade Penelitian Siswa Indonesia (OPSI), meskipun belum berhasil meraih prestasi.</p>
+                    <p>Sebagai penulis berita, saya melihat proyek Michelle dan Jennifer bukan hanya sebagai eksperimen sains semata, tetapi sebagai bukti bahwa kepedulian bisa mendorong inovasi yang nyata. Meski hasilnya belum besar dan masih terus dikembangkan, langkah mereka menunjukkan bahwa perubahan bisa dimulai dari keberanian anak muda mencoba hal baru. Di tengah persoalan sampah yang terus menumpuk, usaha seperti ini memberi secercah harapan bahwa solusi tidak harus selalu datang dari teknologi besar atau pihak berwenang. Terkadang, justru dari ruang kelas sederhana, muncul ide-ide yang mampu menginspirasi banyak orang.</p>
+                    <p>Melalui karyanya, Michelle dan Jennifer mengingatkan kita bahwa sampah plastik tidak selamanya menjadi masalah. Dengan kreativitas, ketekunan, dan kemauan belajar, hal yang tampak tak berguna pun bisa kembali memiliki nilai. Menurut saya, inilah wujud nyata pendidikan yang berdampak: ketika ilmu pengetahuan di sekolah tidak berhenti di buku, tetapi diwujudkan menjadi kontribusi bagi lingkungan.</p>`,
+                    date: 'Jumat, 5 Desember 2025',
+                    image: 'opini 4.jpg'
+                },
+                {
+                    id: 26,
+                    category: 'Pahatan Intelektual',
+                    articleType: 'Artikel Siswa',
+                    title: 'DAMPAK APLIKASI VIDEO SINGKAT TERHADAP KONSENTRASI BELAJAR SISWA SMA NUSANTARA',
+                    summary: 'Fenomena konsumsi konten video singkat pada berbagai platform media sosial telah menjadi bagian tak terpisahkan dari kehidupan remaja, termasuk siswa Sekolah Menengah Atas (SMA). Penelitian ini...',
+                    author: 'Citra Dewi',
+                    body: `<div class="scientific-paper">
+                        <h1>DAMPAK APLIKASI VIDEO SINGKAT TERHADAP KONSENTRASI BELAJAR SISWA SMA NUSANTARA</h1>
+                        <div class="author-info">
+                            <p>Citra Dewi</p>
+                            <p>Sekolah Menengah Atas Nusantara</p>
+                        </div>
+                        
+                        <div class="abstract">
+                            <h2>Abstrak</h2>
+                            <p>Fenomena konsumsi konten video singkat pada berbagai platform media sosial telah menjadi bagian tak terpisahkan dari kehidupan remaja, termasuk siswa Sekolah Menengah Atas (SMA). Penelitian ini bertujuan untuk menganalisis dampak aplikasi video singkat (seperti TikTok, YouTube Shorts, dan Instagram Reels) terhadap konsentrasi belajar siswa SMA Nusantara. Metode yang digunakan adalah tinjauan literatur dan sintesis hasil-hasil penelitian terkait, terutama yang membahas efek neurokognitif dari paparan konten visual singkat secara intensif. Hasil penelitian menunjukkan adanya korelasi negatif antara durasi penggunaan aplikasi video singkat yang berlebihan dan tingkat konsentrasi belajar siswa. Mekanisme utama yang diduga berperan adalah fenomena 'TikTok Brain' yang memicu pelepasan dopamin secara instan instant gratification, memperpendek rentang perhatian (attention span), dan menghambat kemampuan otak untuk fokus pada tugas-tugas kognitif jangka panjang yang kompleks. Implikasi dari temuan ini menekankan pentingnya intervensi literasi digital dan strategi manajemen waktu yang efektif di lingkungan sekolah dan keluarga.</p>
+                        </div>
+                        
+                        <div class="keywords">
+                            <p><span>Kata Kunci:</span> Video Singkat, Konsentrasi Belajar, Siswa SMA, TikTok Brain, Rentang Perhatian, Instant Gratification.</p>
+                        </div>
+                        
+                        <h2>1. Pendahuluan</h2>
+                        <p>Pesatnya perkembangan teknologi digital telah mengubah cara individu mengonsumsi informasi dan berinteraksi. Di Indonesia, populasi pengguna media sosial, terutama dari Generasi Z (siswa SMA termasuk di dalamnya), didominasi oleh aplikasi video singkat. Aplikasi ini dirancang dengan algoritma yang sangat adiktif, menawarkan stimulasi visual dan auditori yang intens dalam durasi hanya beberapa detik hingga satu menit. Sifat konten yang selalu berganti (sistem swipe) dan memicu pelepasan hormon dopamin secara cepat menciptakan siklus kesenangan instan yang sulit dihentikan.</p>
+                        <p>Di sisi lain, tuntutan akademik siswa SMA memerlukan tingkat konsentrasi dan fokus yang tinggi untuk memahami materi pelajaran yang kompleks, menyelesaikan tugas, menyelesaikan tugas, dan mempersiapkan ujian. Konsentrasi belajar didefinisikan sebagai kemampuan memusatkan perhatian pada objek belajar dalam jangka waktu tertentu tanpa terganggu oleh stimulus eksternal atau internal. Artikel ini mengkaji bagaimana kebiasaan intensif menonton video singkat berpotensi mengikis kemampuan esensial ini, yang pada akhirnya memengaruhi performa akademik siswa Nusantara.</p>
+                        
+                        <h2>2. Pembahasan</h2>
+                        <h3>2.1 Aplikasi Video Singkat dan Mekanisme Instant Gratification</h3>
+                        <p>Aplikasi video singkat didasarkan pada model psikologis instant gratification, yaitu kepuasan yang diperoleh secara cepat tanpa menunggu. Rangsangan yang cepat, beragam, dan intens dari konten ini menyebabkan otak memproduksi dopamin dalam jumlah besar.</p>
+                        <p>Paparan dopamin yang berulang dan cepat ini melatih otak untuk mengharapkan hadiah instan, sehingga mengurangi toleransi terhadap aktivitas yang membutuhkan upaya kognitif tinggi dan proses jangka panjang, seperti belajar.</p>
+                        
+                        <h3>2.2 Fenomena 'TikTok Brain' dan Penurunan Rentang Perhatian</h3>
+                        <p>Istilah "TikTok Brain" merujuk pada perubahan fungsional neurokognitif akibat paparan berulang terhadap konten video pendek. Penelitian menunjukkan bahwa penggunaan video singkat secara berlebihan dapat memperpendek rentang perhatian (attention span) manusia. Sebelum era media sosial intensif, rata-rata rentang perhatian manusia mencapai 2,5 menit. Kini, angka tersebut cenderung menurun drastis, bahkan hingga 45 detik untuk generasi muda yang terbiasa dengan konten singkat.</p>
+                        <p>Siswa yang terbiasa dengan rangsangan cepat akan merasa bosan atau gelisah saat menghadapi materi pelajaran yang membutuhkan waktu fokus yang lama, seperti membaca teks panjang atau mendengarkan ceramah guru yang durasinya lebih dari 10 menit. Akibatnya, mereka cenderung mudah teralihkan dan sulit memproses informasi secara mendalam.</p>
+                        
+                        <h3>2.3 Dampak Aplikasi Video Singkat Terhadap Konsentrasi Belajar</h3>
+                        <p>Berdasarkan studi kasus dan penelitian korelasi yang telah dilakukan, dampak negatif konsumsi video singkat pada siswa SMA dapat dikategorikan sebagai berikut:</p>
+                        <p>1. Penurunan Kemampuan Fokus Jangka Panjang (Sustained Attention)</p>
+                        <p>Penggunaan aplikasi video singkat yang intensif melatih otak untuk beralih fokus dengan cepat (shifting attention), bukan memelihara fokus pada satu tugas (sustained attention). Saat siswa beralih dari menonton video singkat ke kegiatan belajar, otak mereka membutuhkan waktu pemulihan (re-fokus) yang lama, bahkan bisa mencapai 15-25 menit untuk benar-benar kembali fokus pada materi pelajaran. Siklus gangguan ini membuat waktu belajar efektif (TBE) siswa menjadi sangat terfragmentasi.</p>
+                        <p>2. Penurunan Daya Ingat dan Pemahaman Konsep</p>
+                        <p>Sifat informasi dalam video singkat yang cepat berlalu dan dangkal menghambat proses pemrosesan kognitif yang mendalam.</p>
+                        <p>3. Peningkatan Prokrastinasi Akademik dan Penundaan Tidur</p>
+                        <p>Sistem notifikasi yang terus muncul dan sifat adiktif aplikasi video singkat sering kali menyebabkan siswa menunda waktu belajar (prokrastinasi). Selain itu, penggunaan gawai dan paparan cahaya biru sebelum tidur dapat menekan produksi melatonin, hormon pengatur tidur, hormon pengatur tidur, yang pada akhirnya menyebabkan kualitas tidur yang buruk. Kurang tidur terbukti secara langsung menurunkan fungsi kognitif, termasuk konsentrasi dan daya ingat, sehingga memperburuk performa akademik.</p>
+                        <p>4. Implikasi dan Rekomendasi</p>
+                        <p>Dampak negatif dari aplikasi video singkat terhadap konsentrasi belajar siswa SMA Nusantara merupakan isu multidimensi yang memerlukan intervensi terpadu:</p>
+                        <p>a.) Intervensi di Sekolah</p>
+                        <p>Sekolah harus mengintegrasikan modul literasi digital dan digital well-being ke dalam kurikulum Bimbingan dan Konseling (BK). Program ini harus berfokus pada pelatihan manajemen waktu, teknik fokus (seperti mindfulness), dan pemahaman neurosains di balik kecanduan kecanduan digital.</p>
+                        <p>b.) Peran Orang Tua</p>
+                        <p>Orang tua perlu menerapkan aturan yang jelas mengenai waktu layar (terutama membatasi penggunaan gawai 30-60 menit sebelum tidur) dan menjadi teladan dalam penggunaan teknologi yang bijak.</p>
+                        <p>c.) Pengembangan Alternatif Belajar</p>
+                        <p>Guru dapat memanfaatkan format video singkat untuk tujuan pembelajaran (seperti microlearning), tetapi dalam konteks yang terarah dan terbatas, untuk memitigasi dampak buruk pada konsentrasi belajar jangka panjang.</p>
+                        
+                        <div class="conclusion">
+                            <h2>5. Kesimpulan</h2>
+                            <p>Konsumsi aplikasi video singkat secara berlebihan dan tanpa kontrol yang tepat terbukti berkorelasi negatif dengan konsentrasi belajar siswa SMA Nusantara. Fenomena 'TikTok Brain' yang memperpendek rentang perhatian dan memicu instant gratification menjadi ancaman serius terhadap kualitas hasil belajar. Oleh karena itu, diperlukan upaya kolektif dari siswa, orang tua, dan institusi pendidikan untuk menumbuhkan kesadaran diri dan mempromosikan kebiasaan digital yang lebih sehat dan seimbang.</p>
+                        </div>
+                        
+                    </div>`,
+                    date: 'Selasa, 9 Desember 2025',
+                    image: 'artikel 1.jpg'
+                },
+                {
+                    id: 27,
+                    category: 'Pahatan Intelektual',
+                    articleType: 'Karya Ilmiah',
+                    title: 'CAHAYA DI BALIK LAYAR: PERAN TEKNOLOGI BAGI PELAJAR BERKEBUTUHAN KHUSUS',
+                    summary: 'Di era digital ini, teknologi telah menjadi agen perubahan utama, terutama dalam dunia pendidikan inklusif. Artikel ini membahas bagaimana...',
+                    author: 'Aira Rahmadani',
+                    body: `<div class="scientific-paper">
+                        <h1>CAHAYA DI BALIK LAYAR: PERAN TEKNOLOGI BAGI PELAJAR BERKEBUTUHAN KHUSUS</h1>
+                        <div class="author-info">
+                            <p>Aira Rahmadani</p>
+                            <p>Sekolah Menengah Atas Nusantara</p>
+                        </div>
+                        
+                        <div class="abstract">
+                            <h2>Abstrak</h2>
+                            <p>Di era digital ini, teknologi telah menjadi agen perubahan utama, terutama dalam dunia pendidikan inklusif. Artikel ini membahas bagaimana berbagai inovasi teknologi berperan penting dalam membantu Pelajar Berkebutuhan Khusus (PBK) mengatasi tantangan dalam belajar, berkomunikasi, dan bersosialisasi. Teknologi tidak hanya berfungsi sebagai alat bantu, melainkan sebagai "cahaya" yang menerangi jalan kemandirian dan meningkatkan aksesibilitas materi, sehingga memungkinkan PBK untuk mencapai potensi akademik dan sosial mereka secara maksimal.</p>
+                        </div>
+                        
+                        <div class="keywords">
+                            <p><span>Kata Kunci:</span> Teknologi, Pelajar Berkebutuhan Khusus (PBK), Inklusi, Assistive Technology, Aksesibilitas, Pembelajaran Personal.</p>
+                        </div>
+                        
+                        <h2>1. Pendahuluan</h2>
+                        <p>Pendidikan harus dapat diakses oleh semua, termasuk anak-anak dengan kebutuhan khusus, baik itu disabilitas fisik, kesulitan belajar spesifik (seperti disleksia), maupun gangguan perkembangan (seperti autisme). Sering kali, metode belajar tradisional tidak sepenuhnya efektif bagi mereka.</p>
+                        <p>Teknologi hadir untuk meruntuhkan hambatan tersebut. Melalui perangkat digital dan aplikasi pintar, pengalaman belajar PBK berubah drastis dari yang kaku menjadi lebih interaktif, aktif, dan personal. Intinya, teknologi memberikan kekuatan kepada PBK untuk belajar dengan cara yang paling efektif bagi kondisi unik mereka.</p>
+                        
+                        <h3>2. Contoh Nyata Alat Bantu Teknologi</h3>
+                        <p>Bagi siswa dengan gangguan penglihatan, teknologi menyediakan Screen Reader (Pembaca Layar) seperti NVDA atau VoiceOver, yang dapat mengubah teks digital menjadi suara. Ini juga dilengkapi dengan perangkat pembesar layar agar materi cetak dapat terbaca.</p>
+                        <p>Untuk siswa dengan gangguan pendengaran, teknologi menawarkan sistem Live Captioning (Teks Otomatis) secara real-time pada video atau saat ceramah langsung, serta sistem FM yang memperkuat suara guru langsung ke alat bantu dengar mereka.</p>
+                        <p>Bagi mereka yang memiliki kesulitan membaca dan menulis (disleksia), tersedia fitur text-to-speech (mengubah tulisan menjadi suara) yang membantu mereka "membaca" materi, dan speech-to-text (mengubah suara menjadi tulisan) yang membantu mereka menuangkan ide tanpa perlu menulis secara manual.</p>
+                        <p>Siswa dengan gangguan komunikasi (misalnya pada spektrum autisme) sangat terbantu dengan aplikasi Augmentative and Alternative Communication (AAC) pada tablet, yang memungkinkan mereka memilih gambar atau simbol untuk diucapkan oleh perangkat. Ini meminimalkan frustrasi dan membantu mereka mengekspresikan diri.</p>
+                        
+                        <h3>2.3 Manfaat Teknologi dalam Meningkatkan Kualitas Belajar</h3>
+                        <p>1. Akses Materi yang Setara</p>
+                        <p>Teknologi menjamin bahwa semua siswa memiliki akses yang sama terhadap informasi. Materi pelajaran dapat dengan mudah diubah ke format yang lebih sesuai: dari teks biasa menjadi audio, video dengan subtitel, atau e-book dengan ukuran font yang dapat disesuaikan. Ini menghilangkan kendala fisik yang sering ditemukan pada buku cetak konvensional.</p>
+                        <p>2. Pembelajaran yang Benar-benar Personal</p>
+                        <p>Setiap PBK memiliki ritme dan kebutuhan belajar yang berbeda-beda. Teknologi memungkinkan Pembelajaran Personal (Personalized Learning) di mana materi dan kecepatan disesuaikan secara otomatis. Aplikasi belajar adaptif dapat memberikan latihan tambahan hanya pada topik yang sulit, dan membiarkan siswa maju lebih cepat pada topik yang mereka kuasai.</p>
+                        <p>3. Memperkuat Komunikasi dan Interaksi Sosial</p>
+                        <p>Aplikasi AAC yang disebutkan sebelumnya sangat vital dalam membangun keterampilan komunikasi. Selain itu, banyak game edukatif dan simulasi virtual yang dirancang khusus untuk melatih keterampilan sosial, seperti bagaimana berinteraksi, memahami ekspresi wajah, memahami ekspresi wajah, memahami ekspresi wajah, memahami ekspresi wajah, memahami ekspresi wajah, memahami ekspresi wajah, memahami ekspresi wajah, memahai ekspresi wajah, memahai ekspresi wajah.</p>
+                        
+                        <div class="conclusion">
+                            <h2>5. Penutup</h2>
+                            <p>Meskipun tantangan seperti biaya perangkat yang mahal dan kebutuhan akan terus diabaikan. Teknologi adalah kunci yang membuka potensi penuh mereka, memberikan mereka suara, penglihatan, dan cara baru untuk belajar.</p>
+                        </div>
+                        
+                    </div>
+                    </div>`,
+                    date: 'Kamis, 11 Desember 2025',
+                    image: 'artikel 2.jpg'
+                }
+            ];
+
+            // Elemen DOM
+            const newsGrid = document.getElementById('newsGrid');
+            const newsModal = document.getElementById('newsModal');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalImage = document.getElementById('modalImage');
+            const modalBody = document.getElementById('modalBody');
+            const modalAuthor = document.getElementById('modalAuthor');
+            const modalDate = document.getElementById('modalDate');
+            const modalArticleType = document.getElementById('modalArticleType');
+            const newsCloseBtn = document.querySelector('.news-close-btn');
+            const filterBtns = document.querySelectorAll('.filter-btn');
+            const searchInput = document.getElementById('searchInput');
+            const searchButton = document.getElementById('searchButton');
+            const pageLoader = document.getElementById('pageLoader');
+
+            // Elemen DOM untuk PPDB
+            const ppdbModal = document.getElementById('ppdbModal');
+            const ppdbLink = document.getElementById('ppdbLink');
+            const ppdbCloseBtn = document.querySelector('.ppdb-close-btn');
+            const timelineLink = document.getElementById('timelineLink');
+            
+            // Elemen DOM untuk Navigasi
+            const berandaLink = document.getElementById('berandaLink');
+            const berandaPage = document.getElementById('berandaPage');
+            const ppdbPage = document.getElementById('ppdbPage');
+
+            // Variabel untuk melacak filter dan pencarian saat ini
+            let currentFilter = 'semua';
+            let currentSearchTerm = '';
+
+            // Urutan ID berita unggulan yang diinginkan
+            const featuredOrder = [17, 27, 23];
+
+            // Fungsi helper untuk Title Case
+            function toTitleCase(str) {
+                return str.toLowerCase().split(' ').map(word => {
+                    return word.charAt(0).toUpperCase() + word.slice(1);
+                }).join(' ');
+            }
+
+            // Fungsi untuk membuat card berita
+            const createNewsCard = (news) => {
+                const card = document.createElement('div');
+                card.className = 'news-card';
+                card.dataset.category = news.category;
+                card.innerHTML = `
+                    <img src="${news.image}" alt="${news.title}">
+                    <div class="news-card-content">
+                        <div class="meta">
+                            <span class="article-type">${news.articleType}</span>
+                            <span class="date">${news.date}</span>
+                        </div>
+                        <h3>${news.title}</h3>
+                        <p>${news.summary}</p>
+                    </div>
+                `;
+                card.addEventListener('click', () => openModal(news));
+                return card;
+            };
+
+            // Fungsi render umum untuk menampilkan berita
+            const renderNews = (newsToRender) => {
+                newsGrid.innerHTML = '';
+                if (newsToRender.length === 0) {
+                    newsGrid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; font-size: 1.1rem; color: var(--text-color);">Berita tidak ditemukan.</p>';
+                } else {
+                    newsGrid.classList.add('stagger-animation');
+                    newsToRender.forEach((news, index) => {
+                        const card = createNewsCard(news);
+                        newsGrid.appendChild(card);
+                        
+                        // Tambahkan animasi bertahap untuk setiap card
+                        setTimeout(() => {
+                            card.classList.add('visible');
+                        },100 * index);
+                    });
+                }
+            };
+            
+            // Fungsi untuk memuat berita unggulan saat pertama kali
+            const loadInitialNews = () => {
+                // 1. Filter berita berdasarkan ID yang ada di featuredOrder
+                let featuredNews = newsData.filter(news => featuredOrder.includes(news.id));
+
+                // 2. Urutkan berita yang sudah difilter sesuai urutan di featuredOrder
+                featuredNews.sort((a, b) => {
+                    return featuredOrder.indexOf(a.id) - featuredOrder.indexOf(b.id);
+                });
+
+                // 3. Render berita yang sudah diurutkan
+                renderNews(featuredNews);
+            };
+
+            // Fungsi terpusat untuk menerapkan filter dan menampilkan berita
+            const applyFiltersAndRender = () => {
+                let newsToDisplay = newsData;
+
+                // 1. Terapkan filter kategori
+                if (currentFilter !== 'semua') {
+                    newsToDisplay = newsToDisplay.filter(item => item.category === currentFilter);
+                }
+
+                // 2. Terapkan filter pencarian
+                if (currentSearchTerm) {
+                    newsToDisplay = newsToDisplay.filter(news =>
+                        news.title.toLowerCase().includes(currentSearchTerm) ||
+                        news.summary.toLowerCase().includes(currentSearchTerm)
+                    );
+                }
+
+                // 3. Render berita yang sudah difilter
+                renderNews(newsToDisplay);
+            };
+
+            // Fungsi untuk membuka modal berita
+            const openModal = (news) => {
+                modalTitle.textContent = news.title;
+                modalImage.src = news.image;
+                
+                // Bersihkan kelas yang mungkin ada dari sebelumnya
+                modalBody.classList.remove('mata-sastra-format');
+                
+                // PERUBAHAN: Format khusus untuk kategori 'Pahatan Intelektual' - Format Ilmiah
+if (news.category === 'Pahatan Intelektual') {
+    modalTitle.textContent = ''; // PERUBAHAN: Sembunyikan judul utama modal
+    modalBody.innerHTML = news.body;
+    modalAuthor.style.display = 'none'; // PERUBAHAN: Sembunyikan author di bawah
+}
+// PERUBAHAN: Format khusus untuk kategori 'Mata Sastra' - Nama penulis di bawah judul
+else if (news.category === 'Mata Sastra') {
+    modalBody.classList.add('mata-sastra-format');
+    
+    // 1. Buat elemen sementara untuk parsing HTML
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = news.body;
+    
+    // 2. Cari semua judul puisi/cerpen/fabel (semua h3)
+    const titles = tempDiv.querySelectorAll('h3');
+    
+    // 3. Untuk setiap judul, tambahkan nama penulis di bawahnya
+    titles.forEach(title => {
+        // Buat elemen penulis dengan styling yang diinginkan
+        const authorP = document.createElement('p');
+        authorP.textContent = news.author;
+        authorP.style.cssText = `
+            font-weight: bold;
+            text-align: left;
+            margin-bottom: 2em;
+            margin-top: 0;
+            color: var(--text-color);
+        `;
+        
+        // Sisipkan nama penulis setelah judul
+        title.parentNode.insertBefore(authorP, title.nextElementSibling);
+    });
+
+    // 4. Ambil HTML yang sudah dimodifikasi
+    modalBody.innerHTML = tempDiv.innerHTML;
+    
+    // 5. Sembunyikan elemen author asli di bagian bawah
+    modalAuthor.style.display = 'none';
+}
+// --- TAMBAHAN: Format khusus untuk kategori 'Ruang Kisah' ---
+else if (news.category === 'Ruang Kisah') {
+    modalTitle.textContent = ''; // Sembunyikan judul utama modal
+    modalAuthor.style.display = 'block'; // <--- PERBAIKAN: Tampilkan kembali author di bawah
+    modalAuthor.textContent = news.author; // <--- TAMBAHKAN: Isi dengan nama penulis
+
+    // Buat elemen sementara untuk memanipulasi HTML
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = news.body;
+    const poemContainer = tempDiv.querySelector('.poem-container');
+
+    if (poemContainer) {
+        const firstH3 = poemContainer.querySelector('h3');
+        if (firstH3) {
+            const authorP = firstH3.nextElementSibling;
+            // Periksa apakah elemen berikutnya adalah <p> dan isinya adalah nama penulis
+            if (authorP && authorP.tagName === 'P' && authorP.textContent.trim() === news.author) {
+                authorP.remove(); // Hapus paragraf penulis yang ada di ATAS
+            }
+        }
+    }
+    modalBody.innerHTML = tempDiv.innerHTML; // Tampilkan konten yang sudah dimodifikasi
+}
+// Format standar untuk kategori lainnya
+else {
+    modalBody.innerHTML = news.body;
+    modalAuthor.textContent = `Penulis: ${news.author}`;
+    modalAuthor.style.display = 'block';
+}
+                
+                modalDate.textContent = news.date;
+                modalArticleType.textContent = news.articleType;
+                newsModal.style.display = 'block';
+                document.body.style.overflow = 'hidden';
+            };
+
+            // Fungsi untuk menutup modal
+            const closeModal = () => {
+                newsModal.style.display = 'none';
+                ppdbModal.style.display = 'none';
+                document.body.style.overflow = 'auto';
+            };
+
+            // Fungsi untuk animasi elemen saat muncul di viewport
+            const animateOnScroll = () => {
+                const elements = document.querySelectorAll('.fade-in');
+                
+                elements.forEach(element => {
+                    const elementTop = element.getBoundingClientRect().top;
+                    const elementVisible = 150;
+                    
+                    if (elementTop < window.innerHeight - elementVisible) {
+                        element.classList.add('visible');
+                    }
+                });
+            };
+
+            // Fungsi untuk animasi elemen timeline
+            const animateTimeline = () => {
+                const timelineContainers = document.querySelectorAll('.timeline-container');
+                
+                timelineContainers.forEach((container, index) => {
+                    const elementTop = container.getBoundingClientRect().top;
+                    const elementVisible = 150;
+                    
+                    if (elementTop < window.innerHeight - elementVisible) {
+                        setTimeout(() => {
+                            container.classList.add('visible');
+                        },200 * index);
+                    }
+                });
+            };
+
+            // Fungsi untuk menginisialisasi animasi saat halaman dimuat
+            const initializeAnimations = () => {
+                // Sembunyikan page loader setelah konten dimuat
+                setTimeout(() => {
+                    pageLoader.classList.add('hidden');
+                    
+                    // Tampilkan header dengan animasi
+                    document.querySelector('header').classList.add('visible');
+                    
+                    // Tampilkan hero section dengan animasi
+                    document.querySelector('.hero-content').classList.add('visible');
+                    document.querySelector('.hero-image').classList.add('visible');
+                    
+                    // Tampilkan elemen-elemen lain dengan animasi bertahap
+                    setTimeout(() => {
+                        document.querySelector('.search-section').classList.add('visible');
+                    },300);
+                    
+                    setTimeout(() => {
+                        document.querySelector('.category-section').classList.add('visible');
+                    },500);
+                    
+                    setTimeout(() => {
+                        document.querySelector('.news-section').classList.add('visible');
+                    },700);
+                    
+                    setTimeout(() => {
+                        document.querySelector('footer').classList.add('visible');
+                    },900);
+                    
+                    // Tampilkan berita unggulan
+                    loadInitialNews();
+                }, 1000);
+            };
+
+            // Event Listener untuk menutup modal
+            newsCloseBtn.addEventListener('click', closeModal);
+            ppdbCloseBtn.addEventListener('click', closeModal);
+            window.addEventListener('click', (event) => {
+                if (event.target === newsModal || event.target === ppdbModal) {
+                    closeModal();
+                }
+            });
+
+            // Event Listener untuk navigasi
+            berandaLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                showPage('beranda');
+            });
+
+            ppdbLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                ppdbModal.style.display = 'block';
+                document.body.style.overflow = 'hidden';
+            });
+
+            timelineLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                closeModal();
+                showPage('ppdb');
+            });
+
+            function showPage(page) {
+                // Sembunyikan semua halaman
+                document.querySelectorAll('.page-section').forEach(p => p.classList.remove('active'));
+                // Hapus kelas aktif dari semua link
+                document.querySelectorAll('nav ul li a').forEach(l => l.classList.remove('active'));
+
+                if (page === 'beranda') {
+                    berandaPage.classList.add('active');
+                    berandaLink.classList.add('active');
+                    loadInitialNews(); 
+                    
+                    // Animasi ulang elemen beranda
+                    document.querySelector('.search-section').classList.add('visible');
+                    document.querySelector('.category-section').classList.add('visible');
+                    document.querySelector('.news-section').add('visible');
+                } else if (page === 'ppdb') {
+                    ppdbPage.classList.add('active');
+                    ppdbLink.classList.add('active');
+                    
+                    // Animasi timeline
+                    setTimeout(() => {
+                        document.querySelector('.timeline-section').classList.add('visible');
+                        animateTimeline();
+                    }, 100);
+                }
+            }
+
+            // Event Listener untuk tombol filter
+            filterBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    // Perbarui gaya tombol aktif
+                    filterBtns.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+
+                    // Perbarui filter dan render ulang
+                    currentFilter = btn.dataset.category;
+                    applyFiltersAndRender();
+                });
+            });
+
+            // Event Listener untuk pencarian
+            searchButton.addEventListener('click', () => {
+                currentSearchTerm = searchInput.value.toLowerCase();
+                applyFiltersAndRender();
+            });
+
+            // Pencarian juga berjalan saat pengguna mengetik
+            searchInput.addEventListener('keyup', () => {
+                currentSearchTerm = searchInput.value.toLowerCase();
+                applyFiltersAndRender();
+            });
+
+            // Event Listener untuk tombol "Pilihan Hari Ini" di hero section
+            document.querySelector('.btn-primary').addEventListener('click', (e) => {
+                e.preventDefault();
+                const featuredId = parseInt(e.target.dataset.id);
+                const featuredNews = newsData.find(news => news.id === featuredId);
+                if (featuredNews) {
+                    openModal(featuredNews);
+                }
+            });
+
+            // Event Listener untuk scroll
+            window.addEventListener('scroll', () => {
+                animateOnScroll();
+                animateTimeline();
+            });
+
+            // Inisialisasi animasi saat halaman dimuat
+            initializeAnimations();
+        });
+    </script>
+</body>
+</html>
